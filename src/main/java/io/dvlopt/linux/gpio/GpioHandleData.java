@@ -12,8 +12,8 @@ public class GpioHandleData {
 
 
 
-    private Memory buffer ;
-    public  int    size   ;
+    private final Memory buffer ;
+    public  final int    size   ;
 
 
 

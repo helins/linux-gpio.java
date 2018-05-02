@@ -39,4 +39,4 @@ publishing {
 
 
 group = "io.dvlopt"
-version = "0.0.0-alpha1"
+version = "0.0.0-alpha2"

@@ -21,7 +21,8 @@ public class GpioEventHandle extends GpioHandle {
                             int line ) {
     
 
-        super( fd ) ;
+        super( fd ,
+               1  ) ;
 
         this.line = line ;
     }

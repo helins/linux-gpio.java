@@ -132,7 +132,8 @@ public class GpioDevice implements AutoCloseable {
 
         request.nativeStruct.read() ;  // TODO read only fd
 
-        return new GpioHandle( request.nativeStruct.fd ) ;
+        return new GpioHandle( request.nativeStruct.fd    ,
+                               request.nativeStruct.lines ) ;
     }
 
 

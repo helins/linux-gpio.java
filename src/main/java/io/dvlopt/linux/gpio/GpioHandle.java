@@ -20,27 +20,42 @@ public class GpioHandle implements AutoCloseable {
 
 
 
-    protected int fd ;
+    protected       int fd   ;
+    public    final int size ;
 
 
 
-    public GpioHandle( int fd ) {
+    GpioHandle( int fd   ,
+                int size ) {
     
-        this.fd = fd ;
+        this.fd   = fd   ;
+        this.size = size ;
+    }
+
+
+
+    private void checkBounds( GpioHandleData data ) {
+    
+        if ( data.size < this.size ) {
+        
+            throw new IllegalArgumentException( "The size of data must be at least as large as the number of lines this handle handles." ) ;
+        }
     }
 
 
 
 
-    public GpioHandleData readValues() throws LinuxException {
+    public GpioHandleData read() throws LinuxException {
     
-        return this.readValues( new GpioHandleData() ) ;
+        return this.read( new GpioHandleData( this.size ) ) ;
     }
 
 
 
 
-    public GpioHandleData readValues( GpioHandleData data ) throws LinuxException {
+    public GpioHandleData read( GpioHandleData data ) throws LinuxException {
+
+        this.checkBounds( data ) ;
     
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_GET_LINE_VALUES_IOCTL ,
@@ -55,7 +70,9 @@ public class GpioHandle implements AutoCloseable {
 
 
 
-    public GpioHandleData writeValues( GpioHandleData data ) throws LinuxException {
+    public GpioHandleData write( GpioHandleData data ) throws LinuxException {
+
+        this.checkBounds( data ) ;
 
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_SET_LINE_VALUES_IOCTL ,
