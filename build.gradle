@@ -1,0 +1,42 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '2.0.3'
+}
+
+
+
+
+dependencies {
+    api            'io.dvlopt:linux-common:0.0.0-alpha2'
+    implementation 'io.dvlopt:linux-epoll:0.0.0-alpha0'
+    implementation 'io.dvlopt:linux-io:0.0.0-alpha3'
+}
+
+
+
+
+repositories {
+    maven {
+        url 'https://dl.bintray.com/dvlopt/maven'
+    }
+
+    jcenter()
+}
+
+
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+
+
+
+group = "dvlopt"
+version = "0.0.0-alpha0"
