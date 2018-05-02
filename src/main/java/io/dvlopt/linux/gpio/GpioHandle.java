@@ -30,34 +30,36 @@ public class GpioHandle implements AutoCloseable {
     }
 
 
+
+
     public GpioHandleData readValues() throws LinuxException {
     
         return this.readValues( new GpioHandleData() ) ;
     }
 
 
+
+
     public GpioHandleData readValues( GpioHandleData data ) throws LinuxException {
     
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_GET_LINE_VALUES_IOCTL ,
-                            data.nativeStruct.getPointer()   ) < 0 ) {
+                            data.getPointer()                ) < 0 ) {
         
             throw new LinuxException( "Unable to read values for the given GPIO handle" ) ;
         }
-
-        data.nativeStruct.read() ;
 
         return data ;
     }
 
 
-    public GpioHandleData writeValues( GpioHandleData data ) throws LinuxException {
 
-        data.nativeStruct.write() ;
+
+    public GpioHandleData writeValues( GpioHandleData data ) throws LinuxException {
 
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_SET_LINE_VALUES_IOCTL ,
-                            data.nativeStruct.getPointer()   ) < 0 ) {
+                            data.getPointer()                ) < 0 ) {
 
             throw new LinuxException( "Unable to write values for the given GPIO handle" ) ;
         }

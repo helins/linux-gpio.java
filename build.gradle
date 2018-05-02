@@ -38,5 +38,5 @@ publishing {
 
 
 
-group = "dvlopt"
-version = "0.0.0-alpha0"
+group = "io.dvlopt"
+version = "0.0.0-alpha1"
