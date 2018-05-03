@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     api            'io.dvlopt:linux-common:0.0.0-alpha2'
-    implementation 'io.dvlopt:linux-epoll:0.0.0-alpha0'
+    implementation 'io.dvlopt:linux-epoll:0.0.0-alpha1'
     implementation 'io.dvlopt:linux-io:0.0.0-alpha3'
 }
 
@@ -39,4 +39,4 @@ publishing {
 
 
 group = "io.dvlopt"
-version = "0.0.0-alpha3"
+version = "0.0.0-alpha4"

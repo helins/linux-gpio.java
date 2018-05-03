@@ -3,9 +3,7 @@ package io.dvlopt.linux.gpio ;
 
 import io.dvlopt.linux.LinuxException       ;
 import io.dvlopt.linux.epoll.Epoll          ;
-import io.dvlopt.linux.epoll.EpollDataType  ;
 import io.dvlopt.linux.epoll.EpollEvent     ;
-import io.dvlopt.linux.epoll.EpollEvents    ;
 import io.dvlopt.linux.gpio.GpioEventHandle ;
 
 
@@ -24,8 +22,6 @@ public class GpioEventWatcher implements AutoCloseable {
     
         this.epoll      = new Epoll()      ;
         this.epollEvent = new EpollEvent() ;
-                
-        epollEvent.selectDataType( EpollDataType.LONG ) ;
     }
 
 
@@ -40,8 +36,7 @@ public class GpioEventWatcher implements AutoCloseable {
         epollEvent
             .setEvents(   Epoll.EPOLLIN
                         | Epoll.EPOLLPRI )
-            .selectDataType( EpollDataType.LONG )
-            .setDataLong(   fd 
+            .setUserData(   fd 
                           | (long)( handle.getLine() ) << 32 ) ;
     
         this.epoll.add( fd         ,
@@ -78,7 +73,7 @@ public class GpioEventWatcher implements AutoCloseable {
         if ( this.epoll.wait( this.epollEvent ,
                               timeout         ) > 0 ) {
 
-            long longValue = this.epollEvent.getDataLong() ;
+            long longValue = this.epollEvent.getUserData() ;
 
             int fd   = (int)longValue            ;
             int line = (int)( longValue >>> 32 ) ;
