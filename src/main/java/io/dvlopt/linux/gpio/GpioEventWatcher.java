@@ -14,65 +14,85 @@ import io.dvlopt.linux.gpio.GpioEventHandle ;
 public class GpioEventWatcher implements AutoCloseable {
 
 
-    private Epoll      epoll ;
-    private EpollEvent event ;
+    private Epoll      epoll      ;
+    private EpollEvent epollEvent ;
+
 
 
 
     public GpioEventWatcher() throws LinuxException {
     
-        this.epoll = new Epoll()      ;
-        this.event = new EpollEvent() ;
+        this.epoll      = new Epoll()      ;
+        this.epollEvent = new EpollEvent() ;
                 
-        event.selectDataType( EpollDataType.LONG ) ;
+        epollEvent.selectDataType( EpollDataType.LONG ) ;
     }
 
 
-    public GpioEventWatcher add( GpioEventHandle eventHandle ) throws LinuxException {
 
-        int fd = eventHandle.getFD() ;
 
-        EpollEvent event = new EpollEvent() ;
+    public GpioEventWatcher addHandle( GpioEventHandle handle ) throws LinuxException {
 
-        event
+        int fd = handle.getFD() ;
+
+        EpollEvent epollEvent = new EpollEvent() ;
+
+        epollEvent
             .setEvents(   Epoll.EPOLLIN
                         | Epoll.EPOLLPRI )
             .selectDataType( EpollDataType.LONG )
             .setDataLong(   fd 
-                          | (long)( eventHandle.getLine() ) << 32 ) ;
+                          | (long)( handle.getLine() ) << 32 ) ;
     
-        this.epoll.add( fd    ,
-                        event ) ;
+        this.epoll.add( fd         ,
+                        epollEvent ) ;
 
         return this ;
     }
 
 
-    public GpioEventWatcher remove( GpioEventHandle eventHandle ) throws LinuxException {
+
+
+    public GpioEventWatcher removeHandle( GpioEventHandle handle ) throws LinuxException {
     
-        this.epoll.remove( eventHandle.getFD() ) ;
+        this.epoll.remove( handle.getFD() ) ;
 
         return this ;
     }
 
 
-    public GpioEventData wait( GpioEventData eventData ,
-                               int           timeout   ) throws LinuxException {
 
-        if ( this.epoll.wait( this.event ,
-                              timeout    ) > 0 ) {
 
-            long longValue = this.event.getDataLong() ;
+    public boolean waitForEvent( GpioEventData data ) throws LinuxException {
+    
+        return this.waitForEvent( data ,
+                                  -1   ) ;
+    }
+
+
+
+
+    public boolean waitForEvent( GpioEventData data    ,
+                                 int           timeout ) throws LinuxException {
+
+        if ( this.epoll.wait( this.epollEvent ,
+                              timeout         ) > 0 ) {
+
+            long longValue = this.epollEvent.getDataLong() ;
 
             int fd   = (int)longValue            ;
             int line = (int)( longValue >>> 32 ) ;
 
-            return eventData.readEvent( fd   ,
-                                        line ) ;
+            data.read( fd   ,
+                       line ) ;
+
+            return true ;
         }
 
-        return null ;
+        return false ;
     }
+
+
 
 
     public void close() throws LinuxException {

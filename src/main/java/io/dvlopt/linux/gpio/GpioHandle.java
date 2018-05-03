@@ -12,16 +12,18 @@ import io.dvlopt.linux.io.LinuxIO          ;
 public class GpioHandle implements AutoCloseable {
 
 
-    public static final NativeLong GPIOHANDLE_GET_LINE_VALUES_IOCTL = new NativeLong( 3225465864L ,
-                                                                                      true        ) ;
+    private static final NativeLong GPIOHANDLE_GET_LINE_VALUES_IOCTL = new NativeLong( 3225465864L ,
+                                                                                       true        ) ;
 
-    public static final NativeLong GPIOHANDLE_SET_LINE_VALUES_IOCTL = new NativeLong( 3225465865L ,
-                                                                                      true        ) ;
+    private static final NativeLong GPIOHANDLE_SET_LINE_VALUES_IOCTL = new NativeLong( 3225465865L ,
+                                                                                       true        ) ;
 
 
+    final int fd ;
 
-    protected       int fd   ;
-    public    final int size ;
+
+    public final int size ;
+
 
 
 
@@ -31,6 +33,7 @@ public class GpioHandle implements AutoCloseable {
         this.fd   = fd   ;
         this.size = size ;
     }
+
 
 
 

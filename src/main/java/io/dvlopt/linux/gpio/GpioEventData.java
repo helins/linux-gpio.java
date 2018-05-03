@@ -11,13 +11,15 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 public class GpioEventData {
 
 
+    private static final int GPIO_EVENT_RISING_EDGE  = 0x01 ;
+    private static final int GPIO_EVENT_FALLING_EDGE = 0x02 ;
 
-    public static final int GPIO_EVENT_RISING_EDGE  = 0x01 ;
-    public static final int GPIO_EVENT_FALLING_EDGE = 0x02 ;
+
+    final NativeGpioEventData nativeStruct = new NativeGpioEventData() ;
 
 
-    NativeGpioEventData nativeStruct = new NativeGpioEventData() ; // TODO user directly a pointer ? probably much faster
-    int                 line                                     ;
+    int line ;
+
 
 
 
@@ -27,6 +29,8 @@ public class GpioEventData {
     }
 
 
+
+
     GpioEventData( int line ) {
     
         this.line = line ;
@@ -34,8 +38,9 @@ public class GpioEventData {
 
 
 
-    GpioEventData readEvent( int fd   ,
-                             int line ) throws LinuxException {
+
+    void read( int fd   ,
+               int line ) throws LinuxException {
     
         if ( LinuxIO.read( fd                             ,
                            this.nativeStruct.getPointer() ,
@@ -44,11 +49,9 @@ public class GpioEventData {
             throw new LinuxException( "Unable to read GPIO event" ) ;
         }
 
-        this.nativeStruct.read() ;
-        this.line = line         ;
-
-        return this ;
+        this.line = line ;
     }
+
 
 
 
@@ -58,6 +61,8 @@ public class GpioEventData {
 
         return this ;
     }
+
+
 
 
     public int getLine() {
@@ -70,18 +75,22 @@ public class GpioEventData {
 
     public long getNanoTimestamp() {
     
-        return this.nativeStruct.timestamp ;
+        return this.nativeStruct.readTimestamp() ;
     }
+
+
 
 
     public boolean isRising() {
     
-        return ( this.nativeStruct.id & GPIO_EVENT_RISING_EDGE ) > 0 ;
+        return ( this.nativeStruct.readId() & GPIO_EVENT_RISING_EDGE ) > 0 ;
     }
+
+
 
 
     public boolean isFalling() {
     
-        return ( this.nativeStruct.id & GPIO_EVENT_FALLING_EDGE ) > 0 ;
+        return ( this.nativeStruct.readId() & GPIO_EVENT_FALLING_EDGE ) > 0 ;
     }
 }

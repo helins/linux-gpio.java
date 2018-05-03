@@ -10,10 +10,10 @@ import com.sun.jna.Pointer ;
 public class GpioHandleData {
 
 
-
-
     private final Memory buffer ;
-    public  final int    size   ;
+
+
+    public final int size   ;
 
 
 

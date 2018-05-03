@@ -13,19 +13,21 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 public class GpioEventHandle extends GpioHandle {
 
 
-    private int line ;
+    private final int line ;
 
 
 
-    public GpioEventHandle( int fd   ,
-                            int line ) {
-    
+
+    GpioEventHandle( int fd   ,
+                     int line ) {
 
         super( fd ,
                1  ) ;
 
         this.line = line ;
     }
+
+
 
 
     public int getLine() {
@@ -36,20 +38,26 @@ public class GpioEventHandle extends GpioHandle {
 
 
 
-    public GpioEventData readEvent() throws LinuxException {
+    public GpioEventData waitForEvent() throws LinuxException {
 
-        return this.readEvent( new GpioEventData() ) ;
+        return this.waitForEvent( new GpioEventData() ) ;
     }
 
 
-    public GpioEventData readEvent( GpioEventData data ) throws LinuxException {
 
-        return data.readEvent( this.fd   ,
-                               this.line ) ;
+
+    public GpioEventData waitForEvent( GpioEventData data ) throws LinuxException {
+
+        data.read( this.fd   ,
+                   this.line ) ;
+
+        return data ;
     }
 
 
-    public int getFD() {
+
+
+    int getFD() {
     
         return fd ;
     }

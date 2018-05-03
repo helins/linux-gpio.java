@@ -10,19 +10,36 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 public class GpioHandleRequest {
 
 
-    NativeGpioHandleRequest nativeStruct = new NativeGpioHandleRequest() ;
+    final NativeGpioHandleRequest nativeStruct = new NativeGpioHandleRequest() ;
+
+    GpioMode mode ;
+
+
+
+
+    public GpioHandleRequest() {
+    
+        this.setMode( GpioMode.AS_IS ) ;
+    }
+
 
 
 
     public GpioHandleRequest setMode( GpioMode mode ) {
     
+        this.mode               = mode       ;
         this.nativeStruct.flags = mode.flags ;
 
         return this ;
     }
 
 
-    // TODO getMode ?
+
+
+    public GpioMode getMode() {
+    
+        return this.mode ;
+    }
 
 
 
@@ -31,6 +48,8 @@ public class GpioHandleRequest {
     
         return new String( this.nativeStruct.consumerLabel ) ;
     }
+
+
 
 
     public GpioHandleRequest setConsumer( String consumer ) {
@@ -61,6 +80,8 @@ public class GpioHandleRequest {
         return this ;
     }
                                            
+
+
 
     public GpioHandleRequest registerLine( int     index ,
                                            int     line  ,

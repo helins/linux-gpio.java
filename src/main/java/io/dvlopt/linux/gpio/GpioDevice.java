@@ -15,17 +15,17 @@ import io.dvlopt.linux.io.LinuxIO           ;
 public class GpioDevice implements AutoCloseable {
 
 
-    public static final NativeLong GPIO_GET_CHIPINFO_IOCTL   = new NativeLong( 2151986177L ,
-                                                                               true        ) ; 
+    private static final NativeLong GPIO_GET_CHIPINFO_IOCTL   = new NativeLong( 2151986177L ,
+                                                                                true        ) ; 
 
-    public static final NativeLong GPIO_GET_LINEINFO_IOCTL   = new NativeLong( 3225990146L ,
-                                                                               true        ) ;
+    private static final NativeLong GPIO_GET_LINEINFO_IOCTL   = new NativeLong( 3225990146L ,
+                                                                                true        ) ;
 
-    public static final NativeLong GPIO_GET_LINEHANDLE_IOCTL = new NativeLong( 3245126659L ,
-                                                                               true        ) ;
+    private static final NativeLong GPIO_GET_LINEHANDLE_IOCTL = new NativeLong( 3245126659L ,
+                                                                                true        ) ;
 
-    public static final NativeLong GPIO_GET_LINEEVENT_IOCTL  = new NativeLong( 3224417284L ,
-                                                                               true        ) ;
+    private static final NativeLong GPIO_GET_LINEEVENT_IOCTL  = new NativeLong( 3224417284L ,
+                                                                                true        ) ;
 
 
 
