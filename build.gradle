@@ -8,20 +8,16 @@ plugins {
 
 
 dependencies {
-    api            'io.dvlopt:linux-common:0.0.0-alpha2'
-    implementation 'io.dvlopt:linux-epoll:0.0.0-alpha1'
-    implementation 'io.dvlopt:linux-io:0.0.0-alpha3'
+    api            'io.dvlopt:linux-common:0.0.1'
+    implementation 'io.dvlopt:linux-epoll:0.0.1'
+    implementation 'io.dvlopt:linux-io:0.0.1'
 }
 
 
 
 
 repositories {
-    maven {
-        url 'https://dl.bintray.com/dvlopt/maven'
-    }
-
-    jcenter()
+    mavenCentral()
 }
 
 
@@ -39,4 +35,4 @@ publishing {
 
 
 group = "io.dvlopt"
-version = "0.0.0-alpha4"
+version = "0.0.0-alpha5"

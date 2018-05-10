@@ -1,10 +1,12 @@
 package io.dvlopt.linux.gpio ;
 
 
-import io.dvlopt.linux.LinuxException       ;
-import io.dvlopt.linux.epoll.Epoll          ;
-import io.dvlopt.linux.epoll.EpollEvent     ;
-import io.dvlopt.linux.gpio.GpioEventHandle ;
+import io.dvlopt.linux.LinuxException        ;
+import io.dvlopt.linux.epoll.Epoll           ;
+import io.dvlopt.linux.epoll.EpollEvent      ;
+import io.dvlopt.linux.epoll.EpollEventFlag  ;
+import io.dvlopt.linux.epoll.EpollEventFlags ;
+import io.dvlopt.linux.gpio.GpioEventHandle  ;
 
 
 
@@ -14,6 +16,19 @@ public class GpioEventWatcher implements AutoCloseable {
 
     private Epoll      epoll      ;
     private EpollEvent epollEvent ;
+
+
+    private static final EpollEventFlags eventFlags = new EpollEventFlags() ;
+
+
+    
+
+    static {
+    
+        eventFlags
+            .set( EpollEventFlag.EPOLLIN  )
+            .set( EpollEventFlag.EPOLLPRI ) ;
+    }
 
 
 
@@ -34,8 +49,7 @@ public class GpioEventWatcher implements AutoCloseable {
         EpollEvent epollEvent = new EpollEvent() ;
 
         epollEvent
-            .setEvents(   Epoll.EPOLLIN
-                        | Epoll.EPOLLPRI )
+            .setEventFlags( eventFlags )
             .setUserData(   fd 
                           | (long)( handle.getLine() ) << 32 ) ;
     
