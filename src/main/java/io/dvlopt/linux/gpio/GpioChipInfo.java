@@ -6,6 +6,9 @@ import io.dvlopt.linux.gpio.internal.NativeGpioChipInfo ;
 
 
 
+/**
+ * Class holding information about a GPIO device.
+ */
 public class GpioChipInfo {
 
 
@@ -14,6 +17,19 @@ public class GpioChipInfo {
 
 
 
+    /**
+     * Basic constructor
+     */
+    public GpioChipInfo() {}
+
+
+
+
+    /**
+     * Retrieves the label of this GPIO device.
+     *
+     * @return  String acting as a label.
+     */
     public String getLabel() {
     
         return new String( this.nativeStruct.label ) ;
@@ -22,6 +38,11 @@ public class GpioChipInfo {
 
 
 
+    /**
+     * Retrieves how many lines this GPIO device can handle.
+     *
+     * @return  The number of lines.
+     */
     public int getLines() {
     
         return this.nativeStruct.lines ;
@@ -30,6 +51,11 @@ public class GpioChipInfo {
 
 
 
+    /**
+     * Retrieves the name of this GPIO device.
+     *
+     * @return  String representing the name.
+     */
     public String getName() {
     
         return new String( this.nativeStruct.name ) ;

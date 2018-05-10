@@ -8,6 +8,9 @@ import java.util.List        ;
 
 
 
+/**
+ * This class has be to public for JNA to work as needed, the user should not care about it.
+ */
 public class NativeGpioLineInfo extends Structure {
 
 

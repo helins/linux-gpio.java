@@ -7,6 +7,11 @@ import com.sun.jna.Pointer ;
 
 
 
+/**
+ * Class representing a buffer for reading the state of several GPIO lines or writing new state.
+ * <p>
+ * It does not do any IO on its own.
+ */
 public class GpioHandleData {
 
 
@@ -18,6 +23,9 @@ public class GpioHandleData {
 
 
 
+    /**
+     * Basic constructor for 64 lines, the maximum.
+     */
     public GpioHandleData() {
     
         this( 64 ) ;
@@ -26,6 +34,11 @@ public class GpioHandleData {
 
 
 
+    /**
+     * Constructor for a specified number of lines.
+     *
+     * @param size  How many lines.
+     */
     public GpioHandleData( int size ) {
 
         if ( size > 64 ) {
@@ -52,6 +65,14 @@ public class GpioHandleData {
 
 
 
+    /**
+     * Retrieves the state of a given line.
+     *
+     * @param index  The position of the line as defined by the GPIO handle, not to be confused
+     *               with the number of the line.
+     *
+     * @return  A boolean representing the state.
+     */
     public boolean get( int index ) {
 
         this.checkBounds( index ) ;
@@ -62,6 +83,16 @@ public class GpioHandleData {
 
 
 
+    /**
+     * Sets the new state of a given line.
+     *
+     * @param index  The position of the line as defined by the GPIO handle, not to be confused
+     *               with the number of the line.
+     *
+     * @param value  The new state.
+     *
+     * @return  This GpioHandleData.
+     */
     public GpioHandleData set( int     index ,
                                boolean value ) {
 

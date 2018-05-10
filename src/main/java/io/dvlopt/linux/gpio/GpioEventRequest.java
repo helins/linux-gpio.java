@@ -8,6 +8,10 @@ import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
 
 
 
+/**
+ * Class representing a request for obtaining a GPIO event handle for reading a line and getting
+ * interrupts.
+ */
 public class GpioEventRequest {
 
 
@@ -16,6 +20,24 @@ public class GpioEventRequest {
 
     // TODO get handle and event modes ?
 
+
+
+
+    /**
+     * Basic constructor.
+     */
+    public GpioEventRequest() {}
+
+
+
+
+    /**
+     * Specifies the requested line will be active low, reversing high and low.
+     *
+     * @param isActiveLow  If the line should be active low.
+     *
+     * @return  This GpioEventRequest.
+     */
     public GpioEventRequest setActiveLow( boolean isActiveLow ) {
     
         this.nativeStruct.handleFlags = isActiveLow ? GpioMode.INPUT_ACTIVE_LOW.flags
@@ -25,6 +47,15 @@ public class GpioEventRequest {
     }
 
 
+
+
+    /**
+     * Selects edge-detection.
+     *
+     * @param mode  Which event mode.
+     *
+     * @return  This GpioEventRequest.
+     */
     public GpioEventRequest setEventMode( GpioEventMode mode ) {
     
         this.nativeStruct.eventFlags = mode.flags ;
@@ -33,12 +64,28 @@ public class GpioEventRequest {
     }
 
 
+
+
+    /**
+     * Retrieves which line will be requested (0 by default).
+     *
+     * @return  The number of the line.
+     */
     public int getLine() {
     
         return this.nativeStruct.lineOffset ;
     }
 
 
+
+
+    /**
+     * Sets which line will be requested.
+     *
+     * @param line  The number of the line.
+     *
+     * @return  This GpioEventRequest.
+     */
     public GpioEventRequest setLine( int line ) {
     
         this.nativeStruct.lineOffset = line ;
@@ -47,12 +94,28 @@ public class GpioEventRequest {
     }
 
 
+
+
+    /**
+     * Retrieves the consumer this line will be request under.
+     *
+     * @return  The name of the consumer.
+     */
     public String getConsumer() {
     
         return new String( this.nativeStruct.consumerLabel ) ;
     }
 
 
+
+
+    /**
+     * Sets the consumer this line will be request under.
+     *
+     * @param consumer  The name of the consumer.
+     *
+     * @return  This GpioEventRequest.
+     */
     public GpioEventRequest setConsumer( String consumer ) {
     
         byte[] consumerBytes = consumer.getBytes() ;

@@ -12,6 +12,12 @@ import io.dvlopt.linux.io.LinuxIO           ;
 
 
 
+/**
+ * Class for requesting and handling a GPIO device.
+ * <p>
+ * Nowadays, a single machine can have several GPIO chips providing lines. Using this class, the
+ * user can request one, obtain information about it and handle it.
+ */
 public class GpioDevice implements AutoCloseable {
 
 
@@ -35,14 +41,13 @@ public class GpioDevice implements AutoCloseable {
 
 
 
-    private GpioDevice( int fd ) {
-    
-        this.fd = fd ;
-    }
-
-
-
-
+    /**
+     * Opens the GPIO device located at the given path.
+     *
+     * @param path  Path to the GPIO device.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioDevice( String path ) throws LinuxException {
 
         int fd = LinuxIO.open64( path           ,
@@ -56,6 +61,26 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Opens a GPIO device by number.
+     *
+     * @param number  Number of the GPIO device.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
+    public GpioDevice( int number ) throws LinuxException {
+    
+        this( "/dev/gpiochip" + number ) ;
+    }
+
+
+
+
+    /**
+     * Closes this GPIO device.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public void close() throws LinuxException {
 
         if ( LinuxIO.close( this.fd ) != 0 ) {
@@ -67,6 +92,13 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains information about this GPIO device.
+     *
+     * @return  Basic information about this GPIO device.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioChipInfo requestChipInfo() throws LinuxException {
     
         return this.requestChipInfo( new GpioChipInfo() ) ;
@@ -75,6 +107,15 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains information about this GPIO device and writes it to `<code>info</code>`.
+     *
+     * @param info  Where the data will be written.
+     *
+     * @return  Basic information about this GPIO device.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioChipInfo requestChipInfo( GpioChipInfo info ) throws LinuxException {
     
        if ( LinuxIO.ioctl( this.fd                        ,
@@ -92,6 +133,15 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains information about a particular GPIO line from this GPIO device.
+     *
+     * @param line  The number of the line.
+     *
+     * @return  Basic information about the GPIO line.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioLineInfo requestLineInfo( int line ) throws LinuxException {
     
         return this.requestLineInfo( new GpioLineInfo( line ) ) ;
@@ -100,6 +150,15 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains information about a particular GPIO line from this GPIO device and writes it to `<code>info</code>`.
+     *
+     * @param info  Where the data will be written.
+     *
+     * @return  Basic information about the GPIO line.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioLineInfo requestLineInfo( GpioLineInfo info ) throws LinuxException {
 
         info.nativeStruct.writeField( "lineOffset" ) ;  // TODO check performance
@@ -119,6 +178,15 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains a GPIO handle for handling the requested GPIO lines.
+     *
+     * @param request  Request specifying what lines will be handled and how.
+     *
+     * @return  A GPIO handle.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioHandle requestHandle( GpioHandleRequest request ) throws LinuxException {
     
         request.nativeStruct.write() ;
@@ -139,6 +207,17 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    /**
+     * Obtains a GPIO event handle for a GPIO line.
+     * <p>
+     * This handle can be used to read the current value of the line or wait for an interrupt.
+     *
+     * @param request  Request specifying which line will be monitored and how.
+     *
+     * @return  A GPIO event handle.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioEventHandle requestEvent( GpioEventRequest request ) throws LinuxException {
     
         request.nativeStruct.write() ;

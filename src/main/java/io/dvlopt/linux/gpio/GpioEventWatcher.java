@@ -11,6 +11,9 @@ import io.dvlopt.linux.gpio.GpioEventHandle  ;
 
 
 
+/**
+ * Class for efficiently monitoring several GPIO events at once.
+ */
 public class GpioEventWatcher implements AutoCloseable {
 
 
@@ -33,6 +36,11 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /**
+     * Basic constructor allocating the needed resources.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioEventWatcher() throws LinuxException {
     
         this.epoll      = new Epoll()      ;
@@ -42,6 +50,15 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /**
+     * Adds a GPIO event to monitor.
+     *
+     * @param handle  The GPIO event handle to monitor.
+     *
+     * @return  This GpioEventWatcher.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioEventWatcher addHandle( GpioEventHandle handle ) throws LinuxException {
 
         int fd = handle.getFD() ;
@@ -62,6 +79,15 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /**
+     * Removes a GPIO event from being monitored.
+     *
+     * @param handle  The GPIO event handle to remove.
+     *
+     * @return  This GpioEventWatcher.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioEventWatcher removeHandle( GpioEventHandle handle ) throws LinuxException {
     
         this.epoll.remove( handle.getFD() ) ;
@@ -72,6 +98,15 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /**
+     * Waits forever until a GPIO event occurs.
+     *
+     * @param data  Where information about the event will be written.
+     *
+     * @return  A boolean whether something happened or not.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public boolean waitForEvent( GpioEventData data ) throws LinuxException {
     
         return this.waitForEvent( data ,
@@ -81,6 +116,16 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /** Waits `<code>timeout</code>` milliseconds at most until a GPIO event occurs.
+     *
+     * @param data  Where information about the event will be written.
+     *
+     * @param timeout  A timeout in milliseconds where -1 means forever.
+     *
+     * @return  A boolean whether something happend or not within the given timeout.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public boolean waitForEvent( GpioEventData data    ,
                                  int           timeout ) throws LinuxException {
 
@@ -104,6 +149,13 @@ public class GpioEventWatcher implements AutoCloseable {
 
 
 
+    /**
+     * Closes this instance and release associated resources.
+     * <p>
+     * The previously registered GPIO event handles WILL NOT be closed.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public void close() throws LinuxException {
 
         this.epoll.close() ;

@@ -7,6 +7,9 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 
 
 
+/**
+ * Class representing a request for obtaining a GPIO handle for controlling the needed lines.
+ */
 public class GpioHandleRequest {
 
 
@@ -17,6 +20,9 @@ public class GpioHandleRequest {
 
 
 
+    /**
+     * Basic constructor.
+     */
     public GpioHandleRequest() {
     
         this.setMode( GpioMode.AS_IS ) ;
@@ -25,6 +31,13 @@ public class GpioHandleRequest {
 
 
 
+    /**
+     * Selects which mode the requested lines will be in.
+     *
+     * @param mode  The needed mode.
+     *
+     * @return  This GpioHandleRequest.
+     */
     public GpioHandleRequest setMode( GpioMode mode ) {
     
         this.mode               = mode       ;
@@ -36,6 +49,11 @@ public class GpioHandleRequest {
 
 
 
+    /**
+     * Retrieves which mode this request will demand.
+     *
+     * @return  The mode.
+     */
     public GpioMode getMode() {
     
         return this.mode ;
@@ -44,6 +62,11 @@ public class GpioHandleRequest {
 
 
 
+    /**
+     * Retrieves the consumer of this request.
+     *
+     * @return  String representing the consumer.
+     */
     public String getConsumer() {
     
         return new String( this.nativeStruct.consumerLabel ) ;
@@ -52,6 +75,13 @@ public class GpioHandleRequest {
 
 
 
+    /**
+     * Sets the future consumer of the requested lines.
+     *
+     * @param  consumer  String representing the consumer.
+     *
+     * @return  This GpioHandleRequest.
+     */
     public GpioHandleRequest setConsumer( String consumer ) {
     
         byte[] consumerBytes = consumer.getBytes() ;
@@ -69,8 +99,17 @@ public class GpioHandleRequest {
 
 
 
-    public GpioHandleRequest registerLine( int index ,
-                                           int line  ) {
+    /**
+     * Adds a GPIO line to be requested.
+     *
+     * @param index  Position of the line in the handle this request will provide.
+     *
+     * @param line  Which line.
+     *
+     * @return  This GpioHandleRequest.
+     */
+    public GpioHandleRequest addLine( int index ,
+                                      int line  ) {
     
         this.nativeStruct.lineOffsets[ index ] = line ;
 
@@ -83,12 +122,25 @@ public class GpioHandleRequest {
 
 
 
-    public GpioHandleRequest registerLine( int     index ,
-                                           int     line  ,
-                                           boolean value ) {
+    /**
+     * Adds a GPIO line to be requested with a default value.
+     * <p>
+     * Works only for outputs, the default value will be ignored for inputs.
+     *
+     * @param index  Position of the line in the handle this request will provide.
+     *
+     * @param line  Which line.
+     *
+     * @param value  Default value.
+     *
+     * @return  This GpioHandleRequest.
+     */
+    public GpioHandleRequest addLine( int     index ,
+                                      int     line  ,
+                                      boolean value ) {
 
-        this.registerLine( index ,
-                           line  ) ;
+        this.addLine( index ,
+                      line  ) ;
     
         this.nativeStruct.defaultValues[ index ] = (byte)( value ? 1
                                                                  : 0 ) ;

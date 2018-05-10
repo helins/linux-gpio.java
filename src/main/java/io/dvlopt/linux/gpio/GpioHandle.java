@@ -9,6 +9,9 @@ import io.dvlopt.linux.io.LinuxIO          ;
 
 
 
+/**
+ * Class for controlling requested GPIO lines.
+ */
 public class GpioHandle implements AutoCloseable {
 
 
@@ -22,6 +25,9 @@ public class GpioHandle implements AutoCloseable {
     final int fd ;
 
 
+    /**
+     * How many lines this handle handles.
+     */
     public final int size ;
 
 
@@ -48,6 +54,13 @@ public class GpioHandle implements AutoCloseable {
 
 
 
+    /**
+     * Reads the current state of the lines this handle handles.
+     *
+     * @return  Data containing the state of the lines.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioHandleData read() throws LinuxException {
     
         return this.read( new GpioHandleData( this.size ) ) ;
@@ -55,7 +68,17 @@ public class GpioHandle implements AutoCloseable {
 
 
 
-
+    
+    /**
+     * Reads the current state of the lines this handle handles and writes it back to the given
+     * data object which has to be able to hold that many lines.
+     *
+     * @param data  Object holding the data.
+     *
+     * @return  Data containing the state of the lines.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioHandleData read( GpioHandleData data ) throws LinuxException {
 
         this.checkBounds( data ) ;
@@ -73,6 +96,16 @@ public class GpioHandle implements AutoCloseable {
 
 
 
+    /**
+     * Writes the new state of the lines this handle handles with a data object that has to provide
+     * state for at least that many lines.
+     *
+     * @param data  Object holding the new state of the lines.
+     *
+     * @return  This GpioHandle.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public GpioHandleData write( GpioHandleData data ) throws LinuxException {
 
         this.checkBounds( data ) ;
@@ -90,6 +123,11 @@ public class GpioHandle implements AutoCloseable {
 
 
 
+    /**
+     * Closes this GPIO handle and releases resources.
+     *
+     * @throws LinuxException  When something fails on the native side.
+     */
     public void close() throws LinuxException {
 
         if ( LinuxIO.close( this.fd ) != 0 ) {

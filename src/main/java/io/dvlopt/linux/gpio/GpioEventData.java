@@ -8,6 +8,9 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 
 
 
+/**
+ * Class for holding information about a GPIO event.
+ */
 public class GpioEventData {
 
 
@@ -23,6 +26,9 @@ public class GpioEventData {
 
 
 
+    /**
+     * Basic constructor.
+     */
     public GpioEventData() {
     
         this.line = -1 ;
@@ -65,6 +71,11 @@ public class GpioEventData {
 
 
 
+    /**
+     * Retrieves the line the event happened on.
+     *
+     * @return  The number of the line.
+     */
     public int getLine() {
     
         return this.line ;
@@ -73,6 +84,11 @@ public class GpioEventData {
 
 
 
+    /**
+     * Retrieves when the event happened.
+     *
+     * @return  Unix timestamp in nanoseconds.
+     */
     public long getNanoTimestamp() {
     
         return this.nativeStruct.readTimestamp() ;
@@ -81,6 +97,11 @@ public class GpioEventData {
 
 
 
+    /**
+     * Did this event happened on a rising edge ?
+     *
+     * @return A boolean.
+     */
     public boolean isRising() {
     
         return ( this.nativeStruct.readId() & GPIO_EVENT_RISING_EDGE ) > 0 ;
@@ -89,6 +110,11 @@ public class GpioEventData {
 
 
 
+    /**
+     * Did this event happened on a falling edge ?
+     *
+     * @return A boolean.
+     */
     public boolean isFalling() {
     
         return ( this.nativeStruct.readId() & GPIO_EVENT_FALLING_EDGE ) > 0 ;
