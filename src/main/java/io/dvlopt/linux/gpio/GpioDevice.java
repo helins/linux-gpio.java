@@ -36,7 +36,8 @@ public class GpioDevice implements AutoCloseable {
 
 
 
-    private int fd ;
+    private int     fd               ;
+    private boolean isClosed = false ;
 
 
 
@@ -83,9 +84,14 @@ public class GpioDevice implements AutoCloseable {
      */
     public void close() throws LinuxException {
 
-        if ( LinuxIO.close( this.fd ) != 0 ) {
-        
-            throw new LinuxException( "Unable to close GPIO device" ) ;
+        if ( this.isClosed == false ) {
+
+            if ( LinuxIO.close( this.fd ) != 0 ) {
+            
+                throw new LinuxException( "Unable to close GPIO device" ) ;
+            }
+
+            this.isClosed = true ;
         }
     }
 

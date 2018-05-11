@@ -24,6 +24,8 @@ public class GpioHandle implements AutoCloseable {
 
     final int fd ;
 
+    private boolean isClosed = false ;
+
 
     /**
      * How many lines this handle handles.
@@ -130,9 +132,14 @@ public class GpioHandle implements AutoCloseable {
      */
     public void close() throws LinuxException {
 
-        if ( LinuxIO.close( this.fd ) != 0 ) {
-        
-            throw new LinuxException( "Unable to close this GPIO handle" ) ;
+        if ( this.isClosed == false ) {
+
+            if ( LinuxIO.close( this.fd ) != 0 ) {
+            
+                throw new LinuxException( "Unable to close this GPIO handle" ) ;
+            }
+
+            this.isClosed = true ;
         }
     }
 }

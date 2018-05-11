@@ -17,8 +17,8 @@ import io.dvlopt.linux.gpio.GpioEventHandle  ;
 public class GpioEventWatcher implements AutoCloseable {
 
 
-    private Epoll      epoll      ;
-    private EpollEvent epollEvent ;
+    private Epoll      epoll              ;
+    private EpollEvent epollEvent         ;
 
 
     private static final EpollEventFlags eventFlags = new EpollEventFlags() ;
