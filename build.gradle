@@ -2,7 +2,23 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id 'com.jfrog.bintray' version '1.7.3'
 }
+
+
+
+
+def globalName    = 'linux-gpio'
+
+def globalVersion = '0.0.0-alpha6'
+
+def globalDesc    = 'Use the standard Linux GPIO api from Java(
+
+def globalUrl     = 'https://github.com/dvlopt/linux-gpio.java'
+
+
+group   = "io.dvlopt"
+version = globalVersion
 
 
 
@@ -23,10 +39,80 @@ repositories {
 
 
 
+task sourcesJar( type:      Jar     ,
+                 dependsOn: classes ) {
+
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
+
+
+task javadocJar( type:      Jar     ,
+                 dependsOn: javadoc ) {
+
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+
+
+def pomConfig = {
+
+
+    licenses {
+        license {
+            name 'The MIT License'
+            url  'https://mit-license.org/'
+        }
+    }
+
+
+    developers {
+        developer {
+            name            'Adam Helinski'
+            email           'adam@dvlopt.io'
+            organization    'Dvlopt'
+            organizationUrl 'http://dvlopt.io'
+        }
+    }
+
+
+    scm {
+        connection          'scm:git:git://github.com/dvlopt/linux-gpio.java.git'
+        developerConnection 'scm:git:ssh://github.com/dvlopt/linux-gpio.java.git'
+        url                 globalUrl
+    }
+}
+
+
+
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
+
             from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+            
+            pom.withXml {
+                def root = asNode()
+
+                root.appendNode( 'name'     ,
+                                 globalName )
+
+                root.appendNode( 'description' ,
+                                 globalDesc    )
+
+                root.appendNode( 'url'     ,
+                                 globalUrl )
+
+                root.children().last() + pomConfig
+            }
         }
     }
 }
@@ -34,5 +120,39 @@ publishing {
 
 
 
-group = "io.dvlopt"
-version = "0.0.0-alpha6"
+bintray {
+    user = project.hasProperty( 'bintrayUser' ) ? project.property( 'bintrayUser' )
+                                                : System.getenv( 'BINTRAY_USER' )
+    key  = project.hasProperty( 'bintrayKey' ) ? project.property( 'bintrayKey' ) 
+                                               : System.getenv( 'BINTRAY_KEY' )
+
+    publications = [ 'mavenJava' ]
+
+    pkg {
+        repo                  = 'maven'
+        name                  = globalName
+        desc                  = globalDesc
+        licenses              = [ 'MIT' ]
+        websiteUrl            = globalUrl
+        vcsUrl                = 'https://github.com/dvlopt/linux-gpio.java.git'
+        labels                = [ 'java', 'jna', 'native', 'linux', 'gpio', 'standard' ]
+        publicDownloadNumbers = true
+        
+        version {
+            name   = globalVersion
+            vcsTag = globalVersion
+
+            gpg {
+                sign = true
+            }
+        }
+    }
+}
+
+
+
+
+if ( JavaVersion.current() != JavaVersion.VERSION_1_8 ) {
+
+    throw GradleException( "Must be used with Java 8" )
+}
