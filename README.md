@@ -20,6 +20,11 @@ Raspbian on the Raspberry Pi already supports this API. This Java library wraps
 the C API in order to provide a lighter and more idiomatic interface accessible
 from the JVM while trying on the be too opiniated.
 
+# Usage
+
+Simply read the
+[javadoc](https://dvlopt.github.io/doc/java/linux-gpio/index.html).
+
 ## Resources
 
 - [Linux
