@@ -9,8 +9,8 @@ import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
 
 
 /**
- * Class representing a request for obtaining a GPIO event handle for reading a line and getting
- * interrupts.
+ * Class representing a request for obtaining a GPIO event handle for reading a line and
+ * especially getting interrupts.
  */
 public class GpioEventRequest {
 
@@ -50,7 +50,8 @@ public class GpioEventRequest {
 
 
     /**
-     * Selects edge-detection.
+     * Selects edge-detection, the kind of event the user is interested in (eg. when the state
+     * change from low to high).
      *
      * @param mode  Which event mode.
      *

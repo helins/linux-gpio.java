@@ -39,7 +39,7 @@ public class GpioChipInfo {
 
 
     /**
-     * Retrieves how many lines this GPIO device can handle.
+     * Retrieves how many lines this GPIO device can handle, at most 64.
      *
      * @return  The number of lines.
      */

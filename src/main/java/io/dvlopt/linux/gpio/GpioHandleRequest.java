@@ -9,6 +9,16 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 
 /**
  * Class representing a request for obtaining a GPIO handle for controlling the needed lines.
+ * <p>
+ * Several lines can be requested at once by specifying a mode (ie. <code>GpioMode.OUTPUT</code>)
+ * and the resulting handle allows the user to control them all at once. In practise, there is no
+ * garantee that any kind of IO will be atomic, actually happening at the exact same time for all
+ * the lines. This depends on the underlying driver and is opaque to this library and user space in
+ * general.
+ *
+ * @see GpioMode
+ * @see GpioHandle
+ * @see GpioHandleData
  */
 public class GpioHandleRequest {
 
@@ -100,9 +110,12 @@ public class GpioHandleRequest {
 
 
     /**
-     * Adds a GPIO line to be requested.
+     * Adds a GPIO line to the request.
+     * <p>
+     * A handle can drive at most 64 lines at once and each line is refered to by using an index specified
+     * by the request rather than by using the number of the line.
      *
-     * @param index  Position of the line in the handle this request will provide.
+     * @param index  Position of the line in the handle this request will provide, must be smaller than 64.
      *
      * @param line  Which line.
      *
@@ -123,11 +136,14 @@ public class GpioHandleRequest {
 
 
     /**
-     * Adds a GPIO line to be requested with a default value.
+     * Adds a GPIO line to the request with a default value.
      * <p>
-     * Works only for outputs, the default value will be ignored for inputs.
+     * A handle can drive at most 64 lines at once and each line is refered to by using an index specified
+     * by the request rather than by using the number of the line.
+     * <p>
+     * Providing a default value works only for outputs and will be ignored for inputs.
      *
-     * @param index  Position of the line in the handle this request will provide.
+     * @param index  Position of the line in the handle this request will provide, must be smaller than 64.
      *
      * @param line  Which line.
      *

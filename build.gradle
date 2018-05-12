@@ -12,7 +12,7 @@ def globalName    = 'linux-gpio'
 
 def globalVersion = '0.0.0-alpha6'
 
-def globalDesc    = 'Use the standard Linux GPIO api from Java(
+def globalDesc    = 'Use the standard Linux GPIO api from Java'
 
 def globalUrl     = 'https://github.com/dvlopt/linux-gpio.java'
 
@@ -147,6 +147,14 @@ bintray {
             }
         }
     }
+}
+
+
+
+
+javadoc {
+    options.links( 'https://docs.oracle.com/javase/8/docs/api/'      ,
+                   'https://dvlopt.github.io/doc/java/linux-common/' )
 }
 
 

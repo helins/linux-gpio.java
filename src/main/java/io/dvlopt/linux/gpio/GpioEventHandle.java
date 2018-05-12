@@ -62,7 +62,7 @@ public class GpioEventHandle extends GpioHandle {
 
 
     /**
-     * Waits for an event to happen and writes what happened to the given object.
+     * Waits for an event to happen and writes what happened to the given `<code>data</code>` object.
      *
      * @param data  Object for holding data about what happened.
      *

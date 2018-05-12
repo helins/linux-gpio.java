@@ -11,6 +11,8 @@ import io.dvlopt.linux.io.LinuxIO          ;
 
 /**
  * Class for controlling requested GPIO lines.
+ * <p>
+ * Each line driven by a handle is referred to by its index, as specified in the request, rather than by its number.
  */
 public class GpioHandle implements AutoCloseable {
 
@@ -28,7 +30,7 @@ public class GpioHandle implements AutoCloseable {
 
 
     /**
-     * How many lines this handle handles.
+     * How many lines this handle controls.
      */
     public final int size ;
 
@@ -57,7 +59,7 @@ public class GpioHandle implements AutoCloseable {
 
 
     /**
-     * Reads the current state of the lines this handle handles.
+     * Reads the current state of the lines this handle controls.
      *
      * @return  Data containing the state of the lines.
      *
@@ -72,7 +74,7 @@ public class GpioHandle implements AutoCloseable {
 
     
     /**
-     * Reads the current state of the lines this handle handles and writes it back to the given
+     * Reads the current state of the lines this handle controls and writes it back to the given
      * data object which has to be able to hold that many lines.
      *
      * @param data  Object holding the data.
@@ -99,7 +101,7 @@ public class GpioHandle implements AutoCloseable {
 
 
     /**
-     * Writes the new state of the lines this handle handles with a data object that has to provide
+     * Writes the new state of the lines this handle controls with a data object that has to provide
      * state for at least that many lines.
      *
      * @param data  Object holding the new state of the lines.

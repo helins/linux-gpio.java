@@ -15,8 +15,31 @@ import io.dvlopt.linux.io.LinuxIO           ;
 /**
  * Class for requesting and handling a GPIO device.
  * <p>
- * Nowadays, a single machine can have several GPIO chips providing lines. Using this class, the
- * user can request one, obtain information about it and handle it.
+ * Nowadays, a single machine can have several GPIO chips providing lines. Typically, such a device
+ * is available at '/dev/gpiochipX' where `X` is the number of the chip.
+ * <p>
+ * Only one process can request a specific GPIO device at once. The user can then retrieve information
+ * about the chip itself or a given GPIO line.
+ * <p>
+ * A handle can be requested and obtained for driving
+ * one or several GPIO lines. When several lines are handled at once, whether doing any kind of IO is
+ * atomic depends on the underlying driver. For instance, there is no garantee that writing to several
+ * lines at once will indeed happen at the exact time for every line. This fact is opaque to this library and
+ * user space in general. Reading and writing the state of the lines is done using an additional buffer.
+ * <p>
+ * An input line can be monitored for events by requesting an event handle. This event handle can be used
+ * for blocking until a declared event happens, such as the line transitioning from low to high. Once an
+ * event handle is obtained, the requested events are queued by the kernel until read by the user. However,
+ * Linux not being a real-time operating system out of the box, such interrupts from user space should not be
+ * used for highly critical tasks. For such matters, a simple microcontroller is prefered.
+ * <p>
+ * Instead of using one thread per monitored pin, the user can start an event watcher and add several event handles.
+ * The event watcher can then be used to wait until one of the registered lines transitions to its relevant state,
+ * effectively using one thread for monitoring several lines at once.
+ * <p>
+ * A GPIO line, just like a GPIO device, can only be requested and handled by one instance at a time. When a handle
+ * is closed, all associated resources are cleaned-up by the kernel. A GPIO line is associated with a consumer, an
+ * optional string provided by the user describing "who" is controlling that line.
  */
 public class GpioDevice implements AutoCloseable {
 
@@ -185,7 +208,7 @@ public class GpioDevice implements AutoCloseable {
 
 
     /**
-     * Obtains a GPIO handle for handling the requested GPIO lines.
+     * Obtains a GPIO handle for driving the requested GPIO lines.
      *
      * @param request  Request specifying what lines will be handled and how.
      *
