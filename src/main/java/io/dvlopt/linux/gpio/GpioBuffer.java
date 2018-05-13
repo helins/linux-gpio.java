@@ -62,7 +62,7 @@ public class GpioBuffer {
      *
      * @param value  The new state.
      *
-     * @return  This GpioHandleData.
+     * @return  This GpioBuffer.
      */
     public GpioBuffer set( GpioLine line  ,
                            boolean  value ) {
@@ -70,6 +70,39 @@ public class GpioBuffer {
         this.buffer.setByte( line.index          ,
                              (byte)( value ? 1
                                            : 0 ) ) ;
+
+        return this ;
+    }
+
+
+
+
+    /**
+     * Toggles the state of a given line.
+     *
+     * @param line  The GPIO line.
+     *
+     * @return  This GpioBuffer.
+     */
+    public GpioBuffer toggle( GpioLine line ) {
+    
+        this.set( line                ,
+                  !( this.get( line ) ) ) ;
+
+        return this ;
+    }
+
+
+
+
+    /**
+     * Clears this buffer by setting every state to false.
+     *
+     * @return  This GpioBuffer.
+     */
+    public GpioBuffer clear() {
+    
+        this.buffer.clear() ;
 
         return this ;
     }
