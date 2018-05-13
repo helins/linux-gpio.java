@@ -2,6 +2,7 @@ package io.dvlopt.linux.gpio ;
 
 
 import io.dvlopt.linux.gpio.GpioMode                         ;
+import io.dvlopt.linux.gpio.GpioLine                         ;
 import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 
 
@@ -16,9 +17,9 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
  * the lines. This depends on the underlying driver and is opaque to this library and user space in
  * general.
  *
+ * @see GpioBuffer
  * @see GpioMode
  * @see GpioHandle
- * @see GpioHandleData
  */
 public class GpioHandleRequest {
 
@@ -75,7 +76,7 @@ public class GpioHandleRequest {
     /**
      * Retrieves the consumer of this request.
      *
-     * @return  String representing the consumer.
+     * @return A string representing the consumer.
      */
     public String getConsumer() {
     
@@ -112,24 +113,24 @@ public class GpioHandleRequest {
     /**
      * Adds a GPIO line to the request.
      * <p>
-     * A handle can drive at most 64 lines at once and each line is refered to by using an index specified
-     * by the request rather than by using the number of the line.
+     * A handle can drive at most 64 lines at once.
      *
-     * @param index  Position of the line in the handle this request will provide, must be smaller than 64.
+     * @param lineNumber  Which line.
      *
-     * @param line  Which line.
+     * @return  A GPIO line for reading or writing state to a buffer.
      *
-     * @return  This GpioHandleRequest.
+     * @see GpioBuffer
      */
-    public GpioHandleRequest addLine( int index ,
-                                      int line  ) {
+    public GpioLine addLine( int lineNumber ) {
+
+        int index = this.nativeStruct.lines ;
     
-        this.nativeStruct.lineOffsets[ index ] = line ;
+        this.nativeStruct.lineOffsets[ index ] = lineNumber ;
 
-        this.nativeStruct.lines = Math.max( this.nativeStruct.lines ,
-                                            index + 1               ) ;
+        this.nativeStruct.lines = index + 1 ;
 
-        return this ;
+        return new GpioLine( lineNumber ,
+                             index      ) ;
     }
                                            
 
@@ -138,29 +139,26 @@ public class GpioHandleRequest {
     /**
      * Adds a GPIO line to the request with a default value.
      * <p>
-     * A handle can drive at most 64 lines at once and each line is refered to by using an index specified
-     * by the request rather than by using the number of the line.
+     * A handle can drive at most 64 lines.
      * <p>
      * Providing a default value works only for outputs and will be ignored for inputs.
      *
-     * @param index  Position of the line in the handle this request will provide, must be smaller than 64.
-     *
-     * @param line  Which line.
+     * @param lineNumber  Which line.
      *
      * @param value  Default value.
      *
-     * @return  This GpioHandleRequest.
+     * @return  A GPIO line for reading or writing state to a buffer.
+     *
+     * @see GpioBuffer
      */
-    public GpioHandleRequest addLine( int     index ,
-                                      int     line  ,
-                                      boolean value ) {
+    public GpioLine addLine( int     lineNumber ,
+                             boolean value      ) {
 
-        this.addLine( index ,
-                      line  ) ;
+        GpioLine gpioLine = this.addLine( lineNumber ) ;
     
-        this.nativeStruct.defaultValues[ index ] = (byte)( value ? 1
-                                                                 : 0 ) ;
+        this.nativeStruct.defaultValues[ gpioLine.index ] = (byte)( value ? 1
+                                                                          : 0 ) ;
 
-        return this ;
+        return gpioLine ;
     }
 }

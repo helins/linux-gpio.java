@@ -6,6 +6,7 @@ import io.dvlopt.linux.epoll.Epoll           ;
 import io.dvlopt.linux.epoll.EpollEvent      ;
 import io.dvlopt.linux.epoll.EpollEventFlag  ;
 import io.dvlopt.linux.epoll.EpollEventFlags ;
+import io.dvlopt.linux.gpio.GpioEvent        ;
 import io.dvlopt.linux.gpio.GpioEventHandle  ;
 
 
@@ -17,8 +18,8 @@ import io.dvlopt.linux.gpio.GpioEventHandle  ;
 public class GpioEventWatcher implements AutoCloseable {
 
 
-    private Epoll      epoll              ;
-    private EpollEvent epollEvent         ;
+    private Epoll                  epoll                      ;
+    private EpollEvent             epollEvent                 ;
 
 
     private static final EpollEventFlags eventFlags = new EpollEventFlags() ;
@@ -55,22 +56,24 @@ public class GpioEventWatcher implements AutoCloseable {
      *
      * @param handle  The GPIO event handle to monitor.
      *
+     * @param id  An arbitrary identifier so that when this event happens, it can be recognized by
+     *            the user.
+     *
      * @return  This GpioEventWatcher.
      *
      * @throws LinuxException  When something fails on the native side.
      */
-    public GpioEventWatcher addHandle( GpioEventHandle handle ) throws LinuxException {
-
-        int fd = handle.getFD() ;
+    public GpioEventWatcher addHandle( GpioEventHandle handle ,
+                                       int             id     ) throws LinuxException {
 
         EpollEvent epollEvent = new EpollEvent() ;
 
         epollEvent
             .setEventFlags( eventFlags )
-            .setUserData(   fd 
-                          | (long)( handle.getLine() ) << 32 ) ;
+            .setUserData(   handle.fd
+                          | ( ( id & 0xffffffffL ) << 32 ) ) ;
     
-        this.epoll.add( fd         ,
+        this.epoll.add( handle.fd  ,
                         epollEvent ) ;
 
         return this ;
@@ -90,7 +93,7 @@ public class GpioEventWatcher implements AutoCloseable {
      */
     public GpioEventWatcher removeHandle( GpioEventHandle handle ) throws LinuxException {
     
-        this.epoll.remove( handle.getFD() ) ;
+        this.epoll.remove( handle.fd ) ;
 
         return this ;
     }
@@ -107,7 +110,7 @@ public class GpioEventWatcher implements AutoCloseable {
      *
      * @throws LinuxException  When something fails on the native side.
      */
-    public boolean waitForEvent( GpioEventData data ) throws LinuxException {
+    public boolean waitForEvent( GpioEvent data ) throws LinuxException {
     
         return this.waitForEvent( data ,
                                   -1   ) ;
@@ -126,19 +129,19 @@ public class GpioEventWatcher implements AutoCloseable {
      *
      * @throws LinuxException  When something fails on the native side.
      */
-    public boolean waitForEvent( GpioEventData data    ,
-                                 int           timeout ) throws LinuxException {
+    public boolean waitForEvent( GpioEvent data    ,
+                                 int       timeout ) throws LinuxException {
 
         if ( this.epoll.wait( this.epollEvent ,
                               timeout         ) > 0 ) {
 
             long longValue = this.epollEvent.getUserData() ;
 
-            int fd   = (int)longValue            ;
-            int line = (int)( longValue >>> 32 ) ;
+            int fd = (int)longValue            ;
+            int id = (int)( longValue >>> 32 ) ;
 
-            data.read( fd   ,
-                       line ) ;
+            data.read( fd ,
+                       id ) ;
 
             return true ;
         }

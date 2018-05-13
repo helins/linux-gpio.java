@@ -11,7 +11,7 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 /**
  * Class for holding information about a GPIO event.
  */
-public class GpioEventData {
+public class GpioEvent {
 
 
     private static final int GPIO_EVENT_RISING_EDGE  = 0x01 ;
@@ -21,7 +21,7 @@ public class GpioEventData {
     final NativeGpioEventData nativeStruct = new NativeGpioEventData() ;
 
 
-    int line ;
+    int id = 0 ;
 
 
 
@@ -29,24 +29,21 @@ public class GpioEventData {
     /**
      * Basic constructor.
      */
-    public GpioEventData() {
-    
-        this.line = -1 ;
+    public GpioEvent() {}
+
+
+
+    void read( int fd ) throws LinuxException{
+
+        this.read( fd ,
+                   0  ) ;
     }
 
 
 
 
-    GpioEventData( int line ) {
-    
-        this.line = line ;
-    }
-
-
-
-
-    void read( int fd   ,
-               int line ) throws LinuxException {
+    void read( int fd ,
+               int id ) throws LinuxException {
     
         if ( LinuxIO.read( fd                             ,
                            this.nativeStruct.getPointer() ,
@@ -55,37 +52,32 @@ public class GpioEventData {
             throw new LinuxException( "Unable to read GPIO event" ) ;
         }
 
-        this.line = line ;
-    }
-
-
-
-
-    GpioEventData setLine( int line ) {
-    
-        this.line = line ;
-
-        return this ;
+        this.id = id ;
     }
 
 
 
 
     /**
-     * Retrieves the line the event happened on.
+     * Retrieves the id associated with this event.
+     * <p>
+     * When using an event watcher, the user can associated an event with an arbitraty id in
+     * order to recognize it when it happens.
      *
      * @return  The number of the line.
+     *
+     * @see GpioEventWatcher
      */
-    public int getLine() {
+    public int getId() {
     
-        return this.line ;
+        return this.id ;
     }
 
 
 
 
     /**
-     * Retrieves when the event happened.
+     * Retrieves the best estimation of when the event happened.
      *
      * @return  Unix timestamp in nanoseconds.
      */

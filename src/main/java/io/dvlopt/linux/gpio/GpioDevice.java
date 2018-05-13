@@ -24,7 +24,7 @@ import io.dvlopt.linux.io.LinuxIO           ;
  * A handle can be requested and obtained for driving
  * one or several GPIO lines. When several lines are handled at once, whether doing any kind of IO is
  * atomic depends on the underlying driver. For instance, there is no garantee that writing to several
- * lines at once will indeed happen at the exact time for every line. This fact is opaque to this library and
+ * lines at once will indeed happen at the exact time for each line. This fact is opaque to this library and
  * user space in general. Reading and writing the state of the lines is done using an additional buffer.
  * <p>
  * An input line can be monitored for events by requesting an event handle. This event handle can be used
@@ -40,6 +40,9 @@ import io.dvlopt.linux.io.LinuxIO           ;
  * A GPIO line, just like a GPIO device, can only be requested and handled by one instance at a time. When a handle
  * is closed, all associated resources are cleaned-up by the kernel. A GPIO line is associated with a consumer, an
  * optional string provided by the user describing "who" is controlling that line.
+ * <p>
+ * Closing a GPIO device does not close the acquired handles. Hence, it is a good practise to close it as soon
+ * as all resources are acquired so that another process can open it in order to acquire other resources.
  */
 public class GpioDevice implements AutoCloseable {
 
@@ -229,8 +232,7 @@ public class GpioDevice implements AutoCloseable {
 
         request.nativeStruct.read() ;  // TODO read only fd
 
-        return new GpioHandle( request.nativeStruct.fd    ,
-                               request.nativeStruct.lines ) ;
+        return new GpioHandle( request.nativeStruct.fd ) ;
     }
 
 
