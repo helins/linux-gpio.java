@@ -62,6 +62,8 @@ public class GpioHandle implements AutoCloseable {
 
     /**
      * Writes the new state of the lines this handle controls using the given buffer.
+     * <p>
+     * Obviously, this methods does not do much for inputs.
      *
      * @param buffer  Buffer holding the new state of the lines.
      *

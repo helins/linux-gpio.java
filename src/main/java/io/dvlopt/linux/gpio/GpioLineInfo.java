@@ -75,23 +75,6 @@ public class GpioLineInfo {
 
 
     /**
-     * Sets the number of the line for subsequent information requests.
-     *
-     * @param line  The number of the new line.
-     *
-     * @return  This GpioLineInfo.
-     */
-    public GpioLineInfo setLine( int line ) {
-    
-        this.nativeStruct.lineOffset = line ;
-
-        return this ;
-    }
-
-
-
-
-    /**
      * Retrieves the name of the line.
      *
      * @return  The name.

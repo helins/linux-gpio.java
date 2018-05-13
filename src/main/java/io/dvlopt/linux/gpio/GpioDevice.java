@@ -176,7 +176,8 @@ public class GpioDevice implements AutoCloseable {
      */
     public GpioLineInfo requestLineInfo( int line ) throws LinuxException {
     
-        return this.requestLineInfo( new GpioLineInfo( line ) ) ;
+        return this.requestLineInfo( line               ,
+                                     new GpioLineInfo() ) ;
     }
 
 
@@ -185,13 +186,18 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Obtains information about a particular GPIO line from this GPIO device and writes it to `<code>info</code>`.
      *
+     * @param line  The number of the line.
+     *
      * @param info  Where the data will be written.
      *
      * @return  Basic information about the GPIO line.
      *
      * @throws LinuxException  When something fails on the native side.
      */
-    public GpioLineInfo requestLineInfo( GpioLineInfo info ) throws LinuxException {
+    public GpioLineInfo requestLineInfo( int          line ,
+                                         GpioLineInfo info ) throws LinuxException {
+
+        info.nativeStruct.lineOffset = line ;
 
         info.nativeStruct.writeField( "lineOffset" ) ;  // TODO check performance
     
@@ -202,7 +208,7 @@ public class GpioDevice implements AutoCloseable {
             throw new LinuxException( "Unable to retrieve information about the request GPIO line" ) ;
         }
 
-        info.nativeStruct.read() ;  // TODO select which field to read ? for performance ?
+        info.nativeStruct.read() ;
 
         return info ;
     }
