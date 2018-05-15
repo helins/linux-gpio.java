@@ -31,6 +31,8 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 
 /**
  * Class for controlling a GPIO line that can be monitored for interrupts.
+ *
+ * @see GpioEventWatcher
  */
 public class GpioEventHandle implements AutoCloseable {
 

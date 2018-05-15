@@ -36,7 +36,6 @@ public enum GpioMode {
      */
     INPUT             ( Flags.GPIOHANDLE_REQUEST_INPUT                      ) , 
 
-
     /**
      * The line will be an active low digital input, reversing high and low.
      */
@@ -54,11 +53,15 @@ public enum GpioMode {
 
     /**
      * The line will be an open-drain digital output.
+     * <p>
+     * When driven high, the line will actually act as an input.
      */
     OUTPUT_OPEN_DRAIN ( OUTPUT.flags | Flags.GPIOHANDLE_REQUEST_OPEN_DRAIN  ) ,   
 
     /**
      * The line will be an open-source digital output.
+     * <p>
+     * When driven low, the line will actually act as as input.
      */
     OUTPUT_OPEN_SOURCE( OUTPUT.flags | Flags.GPIOHANDLE_REQUEST_OPEN_SOURCE ) ;
 

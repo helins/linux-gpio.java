@@ -18,8 +18,10 @@
 package io.dvlopt.linux.gpio ;
 
 
+import com.sun.jna.Memory                                    ;
 import io.dvlopt.linux.gpio.GpioMode                         ;
 import io.dvlopt.linux.gpio.GpioLine                         ;
+import io.dvlopt.linux.gpio.GpioUtils                        ;
 import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 
 
@@ -41,7 +43,8 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 public class GpioHandleRequest {
 
 
-    final NativeGpioHandleRequest nativeStruct = new NativeGpioHandleRequest() ;
+    final Memory memory ;
+
 
     GpioMode mode ;
 
@@ -49,11 +52,30 @@ public class GpioHandleRequest {
 
 
     /**
-     * Basic constructor.
+     * Basic constructor selecting the AS_IS mode.
+     *
+     * @see GpioMode
      */
     public GpioHandleRequest() {
     
-        this.setMode( GpioMode.AS_IS ) ;
+        this( GpioMode.AS_IS ) ;
+    }
+
+
+
+
+    /**
+     * Constructor selecting a given mode.
+     *
+     * @param mode  The needed mode.
+     */
+    public GpioHandleRequest( GpioMode mode ) {
+
+        this.memory = new Memory( NativeGpioHandleRequest.SIZE ) ;
+
+        this.memory.clear() ;
+    
+        this.setMode( mode ) ;
     }
 
 
@@ -68,8 +90,10 @@ public class GpioHandleRequest {
      */
     public GpioHandleRequest setMode( GpioMode mode ) {
     
-        this.mode               = mode       ;
-        this.nativeStruct.flags = mode.flags ;
+        this.memory.setInt( NativeGpioHandleRequest.OFFSET_FLAGS ,
+                            mode.flags                           ) ;
+
+        this.mode = mode ;
 
         return this ;
     }
@@ -93,35 +117,39 @@ public class GpioHandleRequest {
     /**
      * Retrieves the consumer of this request.
      *
-     * @return A string representing the consumer.
+     * @return A string representing the consumer or null.
      */
     public String getConsumer() {
-    
-        return new String( this.nativeStruct.consumerLabel ) ;
+
+        return GpioUtils.getString( this.memory                             ,
+                                    NativeGpioHandleRequest.OFFSET_CONSUMER ) ;
     }
 
 
 
 
     /**
-     * Sets the future consumer of the requested lines.
+     * Sets the consumer of the requested lines.
      *
-     * @param  consumer  String representing the consumer.
+     * @param  consumer  String representing the consumer, length must be smaller than 32.
      *
      * @return  This GpioHandleRequest.
      */
     public GpioHandleRequest setConsumer( String consumer ) {
-    
-        byte[] consumerBytes = consumer.getBytes() ;
 
-        System.arraycopy( consumerBytes                    ,
-                          0                                ,
-                          this.nativeStruct.consumerLabel  ,
-                          0                                ,
-                          Math.min( consumerBytes.length ,
-                                    32                   ) ) ;
+        GpioUtils.setConsumer( this.memory                             ,
+                               NativeGpioHandleRequest.OFFSET_CONSUMER ,
+                               consumer                                ) ;
 
         return this ;
+    }
+
+
+
+
+    int getFD() {
+    
+        return this.memory.getInt( NativeGpioHandleRequest.OFFSET_FD ) ;
     }
 
 
@@ -140,11 +168,13 @@ public class GpioHandleRequest {
      */
     public GpioLine addLine( int lineNumber ) {
 
-        int index = this.nativeStruct.lines ;
-    
-        this.nativeStruct.lineOffsets[ index ] = lineNumber ;
+        int index = this.memory.getInt( NativeGpioHandleRequest.OFFSET_LINES ) ;
 
-        this.nativeStruct.lines = index + 1 ;
+        this.memory.setInt( NativeGpioHandleRequest.OFFSET_LINE_OFFSETS + 4 * index ,
+                            lineNumber                                              ) ;
+
+        this.memory.setInt( NativeGpioHandleRequest.OFFSET_LINES ,
+                            index + 1                            ) ;
 
         return new GpioLine( lineNumber ,
                              index      ) ;
@@ -172,9 +202,10 @@ public class GpioHandleRequest {
                              boolean value      ) {
 
         GpioLine gpioLine = this.addLine( lineNumber ) ;
-    
-        this.nativeStruct.defaultValues[ gpioLine.index ] = (byte)( value ? 1
-                                                                          : 0 ) ;
+
+        this.memory.setByte( NativeGpioHandleRequest.OFFSET_DEFAULT_VALUES + gpioLine.index ,
+                             (byte)( value ? 1
+                                           : 0 )                                            ) ;
 
         return gpioLine ;
     }

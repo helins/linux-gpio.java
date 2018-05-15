@@ -37,10 +37,32 @@ public class NativeGpioHandleRequest extends Structure {
     public  int[]  lineOffsets   = new int[ GPIOHANDLES_MAX ]  ;
     public  int    flags         = 0                           ;
     public  byte[] defaultValues = new byte[ GPIOHANDLES_MAX ] ;
-    public  byte[] consumerLabel = new byte[ 32 ]              ;
+    public  byte[] consumer      = new byte[ 32 ]              ;
     public  int    lines         = 0                           ;
     public  int    fd            = -1                          ;
 
+
+    public static final int OFFSET_LINE_OFFSETS   ;
+    public static final int OFFSET_FLAGS          ;
+    public static final int OFFSET_DEFAULT_VALUES ;
+    public static final int OFFSET_CONSUMER       ;
+    public static final int OFFSET_LINES          ;
+    public static final int OFFSET_FD             ;
+    public static final int SIZE                  ;
+
+
+    static {
+    
+        NativeGpioHandleRequest nativeStruct = new NativeGpioHandleRequest() ;
+
+        OFFSET_LINE_OFFSETS   = nativeStruct.fieldOffset( "lineOffsets"   ) ;
+        OFFSET_FLAGS          = nativeStruct.fieldOffset( "flags"         ) ;
+        OFFSET_DEFAULT_VALUES = nativeStruct.fieldOffset( "defaultValues" ) ;
+        OFFSET_CONSUMER       = nativeStruct.fieldOffset( "consumer"      ) ;
+        OFFSET_LINES          = nativeStruct.fieldOffset( "lines"         ) ;
+        OFFSET_FD             = nativeStruct.fieldOffset( "fd"            ) ;
+        SIZE                  = nativeStruct.size() ;
+    }
 
 
 
@@ -49,7 +71,7 @@ public class NativeGpioHandleRequest extends Structure {
         return Arrays.asList( new String[] { "lineOffsets"   ,
                                              "flags"         ,
                                              "defaultValues" ,
-                                             "consumerLabel" ,
+                                             "consumer"      ,
                                              "lines"         ,
                                              "fd"            } ) ;
     }

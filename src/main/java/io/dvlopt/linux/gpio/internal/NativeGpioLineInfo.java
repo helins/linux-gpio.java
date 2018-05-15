@@ -31,17 +31,38 @@ import java.util.List        ;
 public class NativeGpioLineInfo extends Structure {
 
 
-    public  int    lineOffset = 0              ;
-    public  int    flags      = 0              ;
-    public  byte[] name       = new byte[ 32 ] ;
-    public  byte[] consumer   = new byte[ 32 ] ;
+    public  int    line     = 0              ;
+    public  int    flags    = 0              ;
+    public  byte[] name     = new byte[ 32 ] ;
+    public  byte[] consumer = new byte[ 32 ] ;
+
+
+    public static final int OFFSET_LINE     ;
+    public static final int OFFSET_FLAGS    ;
+    public static final int OFFSET_NAME     ;
+    public static final int OFFSET_CONSUMER ;
+    public static final int SIZE            ;
+
+
+    static {
+    
+        NativeGpioLineInfo nativeStruct = new NativeGpioLineInfo() ;
+
+        OFFSET_LINE     = nativeStruct.fieldOffset( "line"     ) ;
+        OFFSET_FLAGS    = nativeStruct.fieldOffset( "flags"    ) ;
+        OFFSET_NAME     = nativeStruct.fieldOffset( "name"     ) ;
+        OFFSET_CONSUMER = nativeStruct.fieldOffset( "consumer" ) ;
+        SIZE            = nativeStruct.size()                    ;
+    }
+
+
 
 
     protected List< String > getFieldOrder() {
 
-        return Arrays.asList( new String[] { "lineOffset" ,
-                                             "flags"      ,
-                                             "name"       ,
-                                             "consumer"   } ) ;
+        return Arrays.asList( new String[] { "line"     ,
+                                             "flags"    ,
+                                             "name"     ,
+                                             "consumer" } ) ;
     }
 }

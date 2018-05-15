@@ -36,6 +36,25 @@ public class NativeGpioChipInfo extends Structure {
     public int    lines  = 0              ;
 
 
+    public static final int OFFSET_NAME  ;
+    public static final int OFFSET_LABEL ;
+    public static final int OFFSET_LINES ;
+    public static final int SIZE         ;
+
+
+    static {
+    
+        NativeGpioChipInfo nativeStruct = new NativeGpioChipInfo() ;
+
+        OFFSET_NAME  = nativeStruct.fieldOffset( "name"  ) ;
+        OFFSET_LABEL = nativeStruct.fieldOffset( "label" ) ;
+        OFFSET_LINES = nativeStruct.fieldOffset( "lines" ) ;
+        SIZE         = nativeStruct.size()                 ;
+    }
+
+
+
+
     protected List< String > getFieldOrder() {
     
         return Arrays.asList( new String[] { "name"  ,

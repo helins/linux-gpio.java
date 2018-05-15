@@ -167,14 +167,12 @@ public class GpioDevice implements AutoCloseable {
      */
     public GpioChipInfo requestChipInfo( GpioChipInfo info ) throws LinuxException {
     
-       if ( LinuxIO.ioctl( this.fd                        ,
-                           GPIO_GET_CHIPINFO_IOCTL        ,
-                           info.nativeStruct.getPointer() ) < 0 ) {
+       if ( LinuxIO.ioctl( this.fd                 ,
+                           GPIO_GET_CHIPINFO_IOCTL ,
+                           info.memory             ) < 0 ) {
            
            throw new LinuxException( "Unable to retrieve informations about GPIO device" ) ;
        }
-
-       info.nativeStruct.read() ;
 
        return info ;
     }
@@ -214,18 +212,14 @@ public class GpioDevice implements AutoCloseable {
     public GpioLineInfo requestLineInfo( int          line ,
                                          GpioLineInfo info ) throws LinuxException {
 
-        info.nativeStruct.lineOffset = line ;
-
-        info.nativeStruct.writeField( "lineOffset" ) ;  // TODO check performance
+        info.setLine( line ) ;
     
-        if ( LinuxIO.ioctl( this.fd                        ,
-                            GPIO_GET_LINEINFO_IOCTL        ,
-                            info.nativeStruct.getPointer() ) < 0 ) {
+        if ( LinuxIO.ioctl( this.fd                 ,
+                            GPIO_GET_LINEINFO_IOCTL ,
+                            info.memory             ) < 0 ) {
             
             throw new LinuxException( "Unable to retrieve information about the request GPIO line" ) ;
         }
-
-        info.nativeStruct.read() ;
 
         return info ;
     }
@@ -244,18 +238,14 @@ public class GpioDevice implements AutoCloseable {
      */
     public GpioHandle requestHandle( GpioHandleRequest request ) throws LinuxException {
     
-        request.nativeStruct.write() ;
-
-        if ( LinuxIO.ioctl( this.fd                           ,
-                            GPIO_GET_LINEHANDLE_IOCTL         ,
-                            request.nativeStruct.getPointer() ) < 0 ) {
+        if ( LinuxIO.ioctl( this.fd                   ,
+                            GPIO_GET_LINEHANDLE_IOCTL ,
+                            request.memory            ) < 0 ) {
         
             throw new LinuxException( "Unable to provide a GPIO handle" ) ;
         }
 
-        request.nativeStruct.read() ;  // TODO read only fd
-
-        return new GpioHandle( request.nativeStruct.fd ) ;
+        return new GpioHandle( request.getFD() ) ;
     }
 
 
@@ -273,19 +263,15 @@ public class GpioDevice implements AutoCloseable {
      * @throws LinuxException  When something fails on the native side.
      */
     public GpioEventHandle requestEvent( GpioEventRequest request ) throws LinuxException {
-    
-        request.nativeStruct.write() ;
 
-        if ( LinuxIO.ioctl( this.fd                           ,
-                            GPIO_GET_LINEEVENT_IOCTL          ,
-                            request.nativeStruct.getPointer() ) < 0 ) {
+        if ( LinuxIO.ioctl( this.fd                  ,
+                            GPIO_GET_LINEEVENT_IOCTL ,
+                            request.memory           ) < 0 ) {
         
             throw new LinuxException( "Unable to provide a GPIO event handle" ) ;
         }
 
-        request.nativeStruct.read() ; // TODO read only FD
-
-        return new GpioEventHandle( request.nativeStruct.fd ,
-                                    request.getLine()       ) ;
+        return new GpioEventHandle( request.getFD()   ,
+                                    request.getLine() ) ;
     }
 }

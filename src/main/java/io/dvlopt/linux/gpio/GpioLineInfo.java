@@ -18,6 +18,8 @@
 package io.dvlopt.linux.gpio ;
 
 
+import com.sun.jna.Memory                               ;
+import io.dvlopt.linux.gpio.GpioUtils                   ;
 import io.dvlopt.linux.gpio.internal.NativeGpioLineInfo ;
 
 
@@ -29,7 +31,7 @@ import io.dvlopt.linux.gpio.internal.NativeGpioLineInfo ;
 public class GpioLineInfo {
 
 
-    NativeGpioLineInfo nativeStruct = new NativeGpioLineInfo() ;
+    final Memory memory ;
 
 
     private static final int GPIOLINE_FLAG_KERNEL      = 1 << 0 ; 
@@ -42,24 +44,13 @@ public class GpioLineInfo {
 
 
     /**
-     * Basic constructor (line 0 by default).
+     * Basic constructor.
      */
     public GpioLineInfo() {
-    
-        this( 0 ) ;
-    }
 
+        this.memory = new Memory( NativeGpioLineInfo.SIZE ) ;
 
-
-
-    /**
-     * Constructor for the given line.
-     *
-     * @param line  Which line.
-     */
-    public GpioLineInfo( int line ) {
-
-        this.nativeStruct.lineOffset = line ;
+        this.memory.clear() ;
     }
 
 
@@ -68,11 +59,12 @@ public class GpioLineInfo {
     /**
      * Retrieves the current consumer of the requested line.
      *
-     * @return  The name of the consumer.
+     * @return  The name of the consumer or null.
      */
     public String getConsumer() {
 
-        return new String( this.nativeStruct.consumer ) ;
+        return GpioUtils.getString( this.memory                        ,
+                                    NativeGpioLineInfo.OFFSET_CONSUMER ) ;
     }
 
 
@@ -84,8 +76,17 @@ public class GpioLineInfo {
      * @return The number of the line.
      */
     public int getLine() {
+
+        return this.memory.getInt( NativeGpioLineInfo.OFFSET_LINE ) ;
+    }
+
+
+
+
+    void setLine( int line ) {
     
-        return this.nativeStruct.lineOffset ;
+        this.memory.setInt( NativeGpioLineInfo.OFFSET_LINE ,
+                            line                           ) ;
     }
 
 
@@ -94,11 +95,12 @@ public class GpioLineInfo {
     /**
      * Retrieves the name of the line.
      *
-     * @return  The name.
+     * @return  The name or null.
      */
     public String getName() {
-    
-        return new String( this.nativeStruct.name ) ;
+
+        return GpioUtils.getString( this.memory                    ,
+                                    NativeGpioLineInfo.OFFSET_NAME ) ;
     }
 
 
@@ -111,7 +113,7 @@ public class GpioLineInfo {
      */
     public boolean isActiveLow() {
     
-        return ( this.nativeStruct.flags & GPIOLINE_FLAG_ACTIVE_LOW ) > 0 ;
+        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_ACTIVE_LOW ) > 0 ;
     }
 
 
@@ -124,7 +126,7 @@ public class GpioLineInfo {
      */
     public boolean isOpenDrain() {
     
-        return ( this.nativeStruct.flags & GPIOLINE_FLAG_OPEN_DRAIN ) > 0 ;
+        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_OPEN_DRAIN ) > 0 ;
     }
 
 
@@ -137,7 +139,7 @@ public class GpioLineInfo {
      */
     public boolean isOpenSource() {
     
-        return ( this.nativeStruct.flags & GPIOLINE_FLAG_OPEN_SOURCE ) > 0 ;
+        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_OPEN_SOURCE ) > 0 ;
     }
 
 
@@ -163,7 +165,7 @@ public class GpioLineInfo {
      */
     public boolean isOutput() {
     
-        return ( this.nativeStruct.flags & GPIOLINE_FLAG_IS_OUT ) > 0 ;
+        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_IS_OUT ) > 0 ;
     }
 
 
@@ -176,6 +178,6 @@ public class GpioLineInfo {
      */
     public boolean isUsed() {
     
-        return ( this.nativeStruct.flags & GPIOLINE_FLAG_KERNEL ) > 0 ;
+        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_KERNEL ) > 0 ;
     }
 }

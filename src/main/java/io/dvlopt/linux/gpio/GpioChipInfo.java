@@ -18,6 +18,8 @@
 package io.dvlopt.linux.gpio ;
 
 
+import com.sun.jna.Memory                               ;
+import io.dvlopt.linux.gpio.GpioUtils                   ;
 import io.dvlopt.linux.gpio.internal.NativeGpioChipInfo ;
 
 
@@ -29,7 +31,7 @@ import io.dvlopt.linux.gpio.internal.NativeGpioChipInfo ;
 public class GpioChipInfo {
 
 
-    NativeGpioChipInfo nativeStruct = new NativeGpioChipInfo() ;
+    final Memory memory ;
 
 
 
@@ -37,7 +39,12 @@ public class GpioChipInfo {
     /**
      * Basic constructor
      */
-    public GpioChipInfo() {}
+    public GpioChipInfo() {
+    
+        this.memory = new Memory( NativeGpioChipInfo.SIZE ) ;
+
+        this.memory.clear() ;
+    }
 
 
 
@@ -45,11 +52,12 @@ public class GpioChipInfo {
     /**
      * Retrieves the label of this GPIO device.
      *
-     * @return  String acting as a label.
+     * @return  String acting as a label or null.
      */
     public String getLabel() {
-    
-        return new String( this.nativeStruct.label ) ;
+
+        return GpioUtils.getString( this.memory                     ,
+                                    NativeGpioChipInfo.OFFSET_LABEL ) ;
     }
 
 
@@ -62,7 +70,7 @@ public class GpioChipInfo {
      */
     public int getLines() {
     
-        return this.nativeStruct.lines ;
+        return this.memory.getInt( NativeGpioChipInfo.OFFSET_LINES ) ;
     }
 
 
@@ -71,10 +79,11 @@ public class GpioChipInfo {
     /**
      * Retrieves the name of this GPIO device.
      *
-     * @return  String representing the name.
+     * @return  String representing the name or null.
      */
     public String getName() {
     
-        return new String( this.nativeStruct.name ) ;
+        return GpioUtils.getString( this.memory                    ,
+                                    NativeGpioChipInfo.OFFSET_NAME ) ;
     }
 }
