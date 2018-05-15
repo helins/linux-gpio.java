@@ -24,9 +24,9 @@ version = globalVersion
 
 
 dependencies {
-    api            'io.dvlopt:linux-common:0.0.1'
-    implementation 'io.dvlopt:linux-epoll:0.0.2'
-    implementation 'io.dvlopt:linux-io:0.0.1'
+    api            'io.dvlopt:linux-common:0.0.2'
+    implementation 'io.dvlopt:linux-epoll:0.0.3'
+    implementation 'io.dvlopt:linux-io:0.0.2'
 }
 
 
@@ -64,8 +64,8 @@ def pomConfig = {
 
     licenses {
         license {
-            name 'The MIT License'
-            url  'https://mit-license.org/'
+            name 'Apache License, Version 2.0'
+            url  'http://www.apache.org/licenses/LICENSE-2.0'
         }
     }
 
@@ -132,7 +132,7 @@ bintray {
         repo                  = 'maven'
         name                  = globalName
         desc                  = globalDesc
-        licenses              = [ 'MIT' ]
+        licenses              = [ 'Apache-2.0' ]
         websiteUrl            = globalUrl
         vcsUrl                = 'https://github.com/dvlopt/linux-gpio.java.git'
         labels                = [ 'java', 'jna', 'native', 'linux', 'gpio', 'standard' ]
