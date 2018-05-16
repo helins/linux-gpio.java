@@ -1,0 +1,153 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.7.3'
+    id 'com.github.johnrengelman.shadow' version '2.0.4' apply false
+}
+
+
+
+
+def globalName    = 'linux-gpio'
+
+def globalVersion = '0.0.0-alpha12'
+
+def globalDesc    = 'Use the standard Linux GPIO api from Java'
+
+def globalUrl     = 'https://github.com/dvlopt/linux-gpio.java'
+
+
+
+
+group = 'io.dvlopt'
+version = globalVersion
+
+
+
+
+dependencies {
+    api            'io.dvlopt:linux-common:0.0.2'
+    implementation 'io.dvlopt:linux-epoll:0.0.3'
+    implementation 'io.dvlopt:linux-io:0.0.2'
+}
+
+
+
+
+task sourcesJar( type:      Jar     ,
+                 dependsOn: classes ) {
+
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
+
+
+task javadocJar( type:      Jar     ,
+                 dependsOn: javadoc ) {
+
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+
+
+def pomConfig = {
+
+
+    licenses {
+        license {
+            name 'Apache License, Version 2.0'
+            url  'http://www.apache.org/licenses/LICENSE-2.0'
+        }
+    }
+
+
+    developers {
+        developer {
+            name            'Adam Helinski'
+            email           'adam@dvlopt.io'
+            organization    'Dvlopt'
+            organizationUrl 'http://dvlopt.io'
+        }
+    }
+
+
+    scm {
+        connection          'scm:git:git://github.com/dvlopt/linux-gpio.java.git'
+        developerConnection 'scm:git:ssh://github.com/dvlopt/linux-gpio.java.git'
+        url                 globalUrl
+    }
+}
+
+
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+            
+            pom.withXml {
+                def root = asNode()
+
+                root.appendNode( 'name'     ,
+                                 globalName )
+
+                root.appendNode( 'description' ,
+                                 globalDesc    )
+
+                root.appendNode( 'url'     ,
+                                 globalUrl )
+
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+
+
+
+bintray {
+    user = project.hasProperty( 'bintrayUser' ) ? project.property( 'bintrayUser' )
+                                                : System.getenv( 'BINTRAY_USER' )
+    key  = project.hasProperty( 'bintrayKey' ) ? project.property( 'bintrayKey' ) 
+                                               : System.getenv( 'BINTRAY_KEY' )
+
+    publications = [ 'mavenJava' ]
+
+    pkg {
+        repo                  = 'maven'
+        name                  = globalName
+        desc                  = globalDesc
+        licenses              = [ 'Apache-2.0' ]
+        websiteUrl            = globalUrl
+        vcsUrl                = 'https://github.com/dvlopt/linux-gpio.java.git'
+        labels                = [ 'java', 'jna', 'native', 'linux', 'gpio', 'standard' ]
+        publicDownloadNumbers = true
+        
+        version {
+            name   = globalVersion
+            vcsTag = globalVersion
+
+            gpg {
+                sign = true
+            }
+        }
+    }
+}
+
+
+
+
+javadoc {
+    options.links( 'https://docs.oracle.com/javase/8/docs/api/'      ,
+                   'https://dvlopt.github.io/doc/java/linux-common/' )
+}
