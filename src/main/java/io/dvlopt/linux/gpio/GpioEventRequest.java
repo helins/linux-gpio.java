@@ -19,8 +19,8 @@ package io.dvlopt.linux.gpio ;
 
 
 import com.sun.jna.Memory                                   ;
-import io.dvlopt.linux.gpio.GpioMode                        ;
 import io.dvlopt.linux.gpio.GpioEventMode                   ;
+import io.dvlopt.linux.gpio.GpioFlags                       ;
 import io.dvlopt.linux.gpio.GpioUtils                       ;
 import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
 
@@ -33,6 +33,9 @@ import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
  */
 public class GpioEventRequest {
 
+
+    private static final int DEFAULT_FLAGS = new GpioFlags().setInput()
+                                                            .forRequest() ;
 
     final Memory memory ;
 
@@ -51,7 +54,7 @@ public class GpioEventRequest {
     
         this( line                    ,
               GpioEventMode.BOTH_EDGE ,
-              false                   ) ;
+              DEFAULT_FLAGS           ) ;
     }
 
 
@@ -67,9 +70,9 @@ public class GpioEventRequest {
     public GpioEventRequest( int           line ,
                              GpioEventMode mode ) {
 
-        this( line  ,
-              mode  ,
-              false ) ;
+        this( line          ,
+              mode          ,
+              DEFAULT_FLAGS ) ;
     }
 
 
@@ -82,51 +85,70 @@ public class GpioEventRequest {
      *
      * @param mode  The kind of edge-detection.
      *
-     * @param isActiveLow  Set as active-low input ?
+     * @param flags  Flags describing how the line will be handled.
      */
-    public GpioEventRequest( int           line        ,
-                             GpioEventMode mode        ,
-                             boolean       isActiveLow ) {
+    public GpioEventRequest( int           line  ,
+                             GpioEventMode mode  ,
+                             GpioFlags     flags ) {
+
+        this( line               ,
+              mode               ,
+              flags.forRequest() ) ;
+    }
+
+
+
+
+    // Private constructor accepting raw flags.
+    //
+    private GpioEventRequest( int           line  ,
+                              GpioEventMode mode  ,
+                              int           flags ) {
     
         this.memory = new Memory( NativeGpioEventRequest.SIZE ) ;
 
         this.memory.clear() ;
 
-        this.setLine( line )             ;
-        this.setEventMode( mode )        ;
-        this.setActiveLow( isActiveLow ) ;
+        this.setLine( line )      ;
+        this.setEventMode( mode ) ;
+        this.setRawFlags( flags ) ;
     }
 
 
 
 
-    /**
-     * Is this a request for an active low line ?
-     *
-     * @return  A boolean.
-     */
-    public boolean isActiveLow() {
+    // Sets flags using an int.
+    //
+    private GpioEventRequest setRawFlags( int flags ) {
     
-        return this.memory.getInt( NativeGpioEventRequest.OFFSET_HANDLE_FLAGS ) == GpioMode.INPUT_ACTIVE_LOW.flags ;
-    }
-
-
-
-
-    /**
-     * Specifies the requested line will be active low, reversing high and low.
-     *
-     * @param isActiveLow  If the line should be active low.
-     *
-     * @return  This GpioEventRequest.
-     */
-    public GpioEventRequest setActiveLow( boolean isActiveLow ) {
-
-        this.memory.setInt( NativeGpioEventRequest.OFFSET_HANDLE_FLAGS    ,
-                            isActiveLow ? GpioMode.INPUT_ACTIVE_LOW.flags
-                                        : GpioMode.INPUT.flags            ) ;
+        this.memory.setInt( NativeGpioEventRequest.OFFSET_HANDLE_FLAGS ,
+                            flags                                      ) ;
 
         return this ;
+    }
+
+
+
+
+    public GpioEventRequest setFlags( GpioFlags flags ) {
+    
+        return this.setRawFlags( flags.forRequest() ) ;
+    }
+
+
+
+
+    public GpioEventRequest unsetFlags() {
+    
+        return this.setRawFlags( 0 ) ;
+    }
+
+
+
+
+    public GpioFlags getFlags() {
+    
+        return new GpioFlags().fromRequest( this.memory.getInt( NativeGpioEventRequest.OFFSET_HANDLE_FLAGS ) ) ;
     }
 
 
@@ -166,6 +188,8 @@ public class GpioEventRequest {
 
 
 
+    // Retrieves the linux file descriptor after the request has been accepted.
+    //
     int getFD() {
     
         return this.memory.getInt( NativeGpioEventRequest.OFFSET_FD ) ;
@@ -175,7 +199,7 @@ public class GpioEventRequest {
 
 
     /**
-     * Retrieves which line will be requested (0 by default).
+     * Retrieves which line will be requested.
      *
      * @return  The number of the line.
      */
@@ -188,7 +212,7 @@ public class GpioEventRequest {
 
 
     /**
-     * Sets which line will be requested.
+     * Selects which line will be requested.
      *
      * @param line  The number of the line.
      *

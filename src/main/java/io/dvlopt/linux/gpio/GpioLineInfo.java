@@ -19,6 +19,7 @@ package io.dvlopt.linux.gpio ;
 
 
 import com.sun.jna.Memory                               ;
+import io.dvlopt.linux.gpio.GpioFlags                   ;
 import io.dvlopt.linux.gpio.GpioUtils                   ;
 import io.dvlopt.linux.gpio.internal.NativeGpioLineInfo ;
 
@@ -32,13 +33,6 @@ public class GpioLineInfo {
 
 
     final Memory memory ;
-
-
-    private static final int GPIOLINE_FLAG_KERNEL      = 1 << 0 ; 
-    private static final int GPIOLINE_FLAG_IS_OUT      = 1 << 1 ;
-    private static final int GPIOLINE_FLAG_ACTIVE_LOW  = 1 << 2 ;
-    private static final int GPIOLINE_FLAG_OPEN_DRAIN  = 1 << 3 ;
-    private static final int GPIOLINE_FLAG_OPEN_SOURCE = 1 << 4 ;
 
 
 
@@ -57,7 +51,7 @@ public class GpioLineInfo {
 
 
     /**
-     * Retrieves the current consumer of the requested line.
+     * Retrieves the current consumer of this line.
      *
      * @return  The name of the consumer or null.
      */
@@ -71,7 +65,7 @@ public class GpioLineInfo {
 
 
     /**
-     * Retrieves the number of the line this object is describing.
+     * Retrieves the number of this line.
      *
      * @return The number of the line.
      */
@@ -83,6 +77,8 @@ public class GpioLineInfo {
 
 
 
+    // Sets a line for a request.
+    //
     void setLine( int line ) {
     
         this.memory.setInt( NativeGpioLineInfo.OFFSET_LINE ,
@@ -93,7 +89,7 @@ public class GpioLineInfo {
 
 
     /**
-     * Retrieves the name of the line.
+     * Retrieves the name of this line.
      *
      * @return  The name or null.
      */
@@ -106,66 +102,24 @@ public class GpioLineInfo {
 
 
 
-    /**
-     * Is this line active low ?
-     *
-     * @return  A boolean.
-     */
-    public boolean isActiveLow() {
+    // Retrieves flags
+    //
+    private int getRawFlags() {
     
-        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_ACTIVE_LOW ) > 0 ;
+        return this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) ;
     }
 
 
 
 
     /**
-     * Is this line open-drain ?
+     * Retrieves flags qualifying this line.
      *
-     * @return  A boolean.
+     * @return  The flags.
      */
-    public boolean isOpenDrain() {
-    
-        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_OPEN_DRAIN ) > 0 ;
-    }
+    public GpioFlags getFlags() {
 
-
-
-
-    /**
-     * Is this line open-source ?
-     *
-     * @return  A boolean.
-     */
-    public boolean isOpenSource() {
-    
-        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_OPEN_SOURCE ) > 0 ;
-    }
-
-
-
-
-    /**
-     * Is this line an input ?
-     *
-     * @return  A boolean.
-     */
-    public boolean isInput() {
-    
-        return !( this.isOutput() ) ;
-    }
-
-
-
-
-    /**
-     * Is this line an output ?
-     *
-     * @return  A boolean.
-     */
-    public boolean isOutput() {
-    
-        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_IS_OUT ) > 0 ;
+        return new GpioFlags().fromLineInfo( this.getRawFlags() ) ;
     }
 
 
@@ -177,7 +131,8 @@ public class GpioLineInfo {
      * @return  A boolean.
      */
     public boolean isUsed() {
-    
-        return ( this.memory.getInt( NativeGpioLineInfo.OFFSET_FLAGS ) & GPIOLINE_FLAG_KERNEL ) > 0 ;
+
+        return GpioUtils.isSet( this.getRawFlags()             ,
+                                GpioFlags.LineInfoFlags.KERNEL ) ;
     }
 }

@@ -37,7 +37,7 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 public class GpioEventHandle implements AutoCloseable {
 
 
-    final int fd   ;
+    final int fd ;
 
     private final GpioLine line ;
 

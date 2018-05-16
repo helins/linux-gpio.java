@@ -19,7 +19,7 @@ package io.dvlopt.linux.gpio ;
 
 
 import com.sun.jna.Memory                                    ;
-import io.dvlopt.linux.gpio.GpioMode                         ;
+import io.dvlopt.linux.gpio.GpioFlags                        ;
 import io.dvlopt.linux.gpio.GpioLine                         ;
 import io.dvlopt.linux.gpio.GpioUtils                        ;
 import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
@@ -30,14 +30,13 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 /**
  * Class representing a request for obtaining a GPIO handle for controlling the needed lines.
  * <p>
- * Several lines can be requested at once by specifying a mode (ie. <code>GpioMode.OUTPUT</code>)
- * and the resulting handle allows the user to control them all at once. In practise, there is no
- * garantee that any kind of IO will be atomic, actually happening at the exact same time for all
- * the lines. This depends on the underlying driver and is opaque to this library and user space in
- * general.
+ * Several lines can be requested at once and the resulting handle allows the user to control them all
+ * at once. In practise, there is no garantee that any kind of IO will be atomic, actually happening at
+ * the exact same time for all the lines. This depends on the underlying driver and is opaque to this
+ * library and user space in general.
  *
  * @see GpioBuffer
- * @see GpioMode
+ * @see GpioFlags
  * @see GpioHandle
  */
 public class GpioHandleRequest {
@@ -46,54 +45,27 @@ public class GpioHandleRequest {
     final Memory memory ;
 
 
-    GpioMode mode ;
-
-
 
 
     /**
-     * Basic constructor selecting the AS_IS mode.
-     *
-     * @see GpioMode
+     * Basic constructor, by default lines will be requested as they are.
      */
     public GpioHandleRequest() {
-    
-        this( GpioMode.AS_IS ) ;
-    }
-
-
-
-
-    /**
-     * Constructor selecting a given mode.
-     *
-     * @param mode  The needed mode.
-     */
-    public GpioHandleRequest( GpioMode mode ) {
 
         this.memory = new Memory( NativeGpioHandleRequest.SIZE ) ;
 
         this.memory.clear() ;
-    
-        this.setMode( mode ) ;
     }
 
 
 
 
-    /**
-     * Selects which mode the requested lines will be in.
-     *
-     * @param mode  The needed mode.
-     *
-     * @return  This GpioHandleRequest.
-     */
-    public GpioHandleRequest setMode( GpioMode mode ) {
+    // Sets flags using an int.
+    //
+    private GpioHandleRequest setRawFlags( int flags ) {
     
         this.memory.setInt( NativeGpioHandleRequest.OFFSET_FLAGS ,
-                            mode.flags                           ) ;
-
-        this.mode = mode ;
+                            flags                                ) ;
 
         return this ;
     }
@@ -102,13 +74,41 @@ public class GpioHandleRequest {
 
 
     /**
-     * Retrieves which mode this request will demand.
+     * Sets flags specifying how the lines will be handled.
      *
-     * @return  The mode.
+     * @param flags  Prepared flags.
+     *
+     * @return  This GpioHandleRequest.
      */
-    public GpioMode getMode() {
+    public GpioHandleRequest setFlags( GpioFlags flags ) {
     
-        return this.mode ;
+        return this.setRawFlags( flags.forRequest() ) ;
+    }
+
+
+
+
+    /**
+     * The lines will be requested as they are.
+     *
+     * @return  ThisGpioHandleRequest.
+     */
+    public GpioHandleRequest unsetFlags() {
+    
+        return this.setRawFlags( 0 ) ;
+    }
+
+
+
+
+    /**
+     * Retrieves the flags specifying how the lines will be handled.
+     *
+     * @return  The flags.
+     */
+    public GpioFlags getFlags() {
+    
+        return new GpioFlags().fromRequest( this.memory.getInt( NativeGpioHandleRequest.OFFSET_FLAGS ) ) ;
     }
 
 
@@ -147,6 +147,8 @@ public class GpioHandleRequest {
 
 
 
+    // Retrieves the linux file descriptor after the request has been accepted.
+    //
     int getFD() {
     
         return this.memory.getInt( NativeGpioHandleRequest.OFFSET_FD ) ;
@@ -162,7 +164,7 @@ public class GpioHandleRequest {
      *
      * @param lineNumber  Which line.
      *
-     * @return  A GPIO line for reading or writing state to a buffer.
+     * @return  A GPIO line useful for handling a buffer.
      *
      * @see GpioBuffer
      */
@@ -194,7 +196,7 @@ public class GpioHandleRequest {
      *
      * @param value  Default value.
      *
-     * @return  A GPIO line for reading or writing state to a buffer.
+     * @return  A GPIO line useful for handling a buffer.
      *
      * @see GpioBuffer
      */

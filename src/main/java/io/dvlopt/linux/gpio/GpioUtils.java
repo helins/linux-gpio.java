@@ -30,6 +30,17 @@ class GpioUtils {
 
 
 
+    // Is a flag set ?
+    //
+    static boolean isSet( int flags ,
+                          int flag  ) {
+    
+        return ( flags & flag ) > 0 ;
+    }
+
+
+
+
     // From a pointer, reads and returns a string or null if it is empty.
     //
     static String getString( Pointer ptr    ,
@@ -46,9 +57,9 @@ class GpioUtils {
 
     // Given a pointer, validates and sets a consumer.
     //
-    static public void setConsumer( Pointer ptr      ,
-                                    int     offset   ,
-                                    String  consumer ) {
+    static void setConsumer( Pointer ptr      ,
+                             int     offset   ,
+                             String  consumer ) {
 
         if ( consumer.length() > 31 ) {
         
