@@ -19,7 +19,7 @@ package io.dvlopt.linux.gpio ;
 
 
 import com.sun.jna.Memory                                   ;
-import io.dvlopt.linux.gpio.GpioEventMode                   ;
+import io.dvlopt.linux.gpio.GpioEdgeDetection               ;
 import io.dvlopt.linux.gpio.GpioFlags                       ;
 import io.dvlopt.linux.gpio.GpioUtils                       ;
 import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
@@ -29,7 +29,10 @@ import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
 
 /**
  * Class representing a request for obtaining a GPIO event handle for reading a line and
- * especially getting interrupts.
+ * especially setting edge-detection.
+ * <p>
+ * Edge-detection is monitoring changes of state, for instance when the line goes from low
+ * to high.
  */
 public class GpioEventRequest {
 
@@ -40,7 +43,7 @@ public class GpioEventRequest {
     final Memory memory ;
 
 
-    private GpioEventMode eventMode ;
+    private GpioEdgeDetection edgeDetection ;
 
 
 
@@ -52,9 +55,9 @@ public class GpioEventRequest {
      */
     public GpioEventRequest( int line ) {
     
-        this( line                    ,
-              GpioEventMode.BOTH_EDGE ,
-              DEFAULT_FLAGS           ) ;
+        this( line                                 ,
+              GpioEdgeDetection.RISING_AND_FALLING ,
+              DEFAULT_FLAGS                        ) ;
     }
 
 
@@ -65,13 +68,13 @@ public class GpioEventRequest {
      *
      * @param line  The number of the line.
      *
-     * @param mode  The kind of edge-detection.
+     * @param edgeDetection  The kind of edge-detection.
      */
-    public GpioEventRequest( int           line ,
-                             GpioEventMode mode ) {
+    public GpioEventRequest( int               line          ,
+                             GpioEdgeDetection edgeDetection ) {
 
         this( line          ,
-              mode          ,
+              edgeDetection ,
               DEFAULT_FLAGS ) ;
     }
 
@@ -83,16 +86,16 @@ public class GpioEventRequest {
      *
      * @param line  The number of the line.
      *
-     * @param mode  The kind of edge-detection.
+     * @param edgeDetection  The kind of edge-detection.
      *
      * @param flags  Flags describing how the line will be handled.
      */
-    public GpioEventRequest( int           line  ,
-                             GpioEventMode mode  ,
-                             GpioFlags     flags ) {
+    public GpioEventRequest( int           line              ,
+                             GpioEdgeDetection edgeDetection ,
+                             GpioFlags     flags             ) {
 
         this( line               ,
-              mode               ,
+              edgeDetection      ,
               flags.forRequest() ) ;
     }
 
@@ -101,17 +104,17 @@ public class GpioEventRequest {
 
     // Private constructor accepting raw flags.
     //
-    private GpioEventRequest( int           line  ,
-                              GpioEventMode mode  ,
-                              int           flags ) {
+    private GpioEventRequest( int               line          ,
+                              GpioEdgeDetection edgeDetection ,
+                              int               flags         ) {
     
         this.memory = new Memory( NativeGpioEventRequest.SIZE ) ;
 
         this.memory.clear() ;
 
-        this.setLine( line )      ;
-        this.setEventMode( mode ) ;
-        this.setRawFlags( flags ) ;
+        this.setLine( line )                   ;
+        this.setEdgeDetection( edgeDetection ) ;
+        this.setRawFlags( flags )              ;
     }
 
 
@@ -159,28 +162,27 @@ public class GpioEventRequest {
      *
      * @return The kind of edge-detection.
      */
-    public GpioEventMode getEventMode() {
+    public GpioEdgeDetection getEdgeDetection() {
     
-        return this.eventMode ;
+        return this.edgeDetection ;
     }
 
 
 
 
     /**
-     * Selects edge-detection, the kind of event the user is interested in (eg. when the state
-     * change from low to high).
+     * Selects edge-detection.
      *
-     * @param mode The kind of edge-detection.
+     * @param edgeDetection The kind of edge-detection.
      *
      * @return  This GpioEventRequest.
      */
-    public GpioEventRequest setEventMode( GpioEventMode mode ) {
+    public GpioEventRequest setEdgeDetection( GpioEdgeDetection edgeDetection ) {
 
         this.memory.setInt( NativeGpioEventRequest.OFFSET_EVENT_FLAGS ,
-                            mode.flags                                ) ;
+                            edgeDetection.flags                       ) ;
 
-        this.eventMode = mode ;
+        this.edgeDetection = edgeDetection ;
 
         return this ;
     }
