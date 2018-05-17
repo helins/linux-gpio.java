@@ -34,8 +34,8 @@ class GpioUtils {
     //
     static boolean isSet( int flags ,
                           int flag  ) {
-    
-        return ( flags & flag ) > 0 ;
+
+        return ( flags & flag ) != 0 ;
     }
 
 

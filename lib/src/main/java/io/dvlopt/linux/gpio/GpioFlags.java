@@ -296,10 +296,37 @@ public class GpioFlags {
         this.isOpenDrain   = GpioUtils.isSet( flags                    ,
                                               LineInfoFlags.OPEN_DRAIN ) ;
 
-
         this.isOpenSource = GpioUtils.isSet( flags                     ,
                                              LineInfoFlags.OPEN_SOURCE ) ;
 
         return this ;
+    }
+
+
+
+
+    /**
+     * Are those two flags equal ?
+     *
+     * @param flags  Flags for comparison.
+     *
+     * @return  A boolean.
+     */
+    public boolean equals( GpioFlags flags ) {
+    
+        return    this.isOutput     == flags.isOutput
+               && this.isActiveLow  == flags.isActiveLow
+               && this.isOpenDrain  == flags.isOpenDrain
+               && this.isOpenSource == flags.isOpenSource ;
+    }
+
+
+
+
+    @Override
+    public boolean equals( Object o ) {
+    
+        return o instanceof GpioFlags ? this.equals( (GpioFlags)o )
+                                      : false                       ;
     }
 }

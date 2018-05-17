@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.7.3'
-    id 'com.github.johnrengelman.shadow' version '2.0.4' apply false
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
 }
 
 
@@ -10,7 +10,7 @@ plugins {
 
 def globalName    = 'linux-gpio'
 
-def globalVersion = '0.0.0-alpha12'
+def globalVersion = '0.0.0-alpha13'
 
 def globalDesc    = 'Use the standard Linux GPIO api from Java'
 
@@ -19,7 +19,7 @@ def globalUrl     = 'https://github.com/dvlopt/linux-gpio.java'
 
 
 
-group = 'io.dvlopt'
+group   = 'io.dvlopt'
 version = globalVersion
 
 
@@ -29,6 +29,26 @@ dependencies {
     api            'io.dvlopt:linux-common:0.0.2'
     implementation 'io.dvlopt:linux-epoll:0.0.3'
     implementation 'io.dvlopt:linux-io:0.0.2'
+    testCompile    'org.junit.jupiter:junit-jupiter-api:5.2.0'
+    testRuntime    'org.junit.jupiter:junit-jupiter-engine:5.2.0'
+}
+
+
+
+
+test {
+
+    useJUnitPlatform()
+
+    testLogging {
+
+        events 'passed'  ,
+               'skipped' ,
+               'failed'
+    }
+
+    systemProperty( 'onRaspberry'                       ,
+                    System.getProperty( 'onRaspberry' ) )
 }
 
 
@@ -87,7 +107,11 @@ def pomConfig = {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        mavenJava( MavenPublication ) {
+
+            groupId    group
+            artifactId 'linux-gpio'
+            version    globalVersion
 
             from components.java
 

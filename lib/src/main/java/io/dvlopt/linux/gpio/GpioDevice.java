@@ -17,6 +17,8 @@
 
 package io.dvlopt.linux.gpio ;
 
+import com.sun.jna.Pointer ;
+
 
 import com.sun.jna.NativeLong               ;
 import io.dvlopt.linux.LinuxException       ;
@@ -58,8 +60,8 @@ import io.dvlopt.linux.io.LinuxIO           ;
  * is closed, all associated resources are cleaned-up by the kernel. A GPIO line is associated with a consumer, an
  * optional string provided by the user describing "who" is controlling that line.
  * <p>
- * Closing a GPIO device does not close the acquired handles. Hence, it is a good practise to close it as soon
- * as all resources are acquired so that another process can open it in order to acquire other resources.
+ * Closing a GPIO device does not close the acquired handles. Hence, it is a good practise to close it when it is
+ * not needed anymore.
  */
 public class GpioDevice implements AutoCloseable {
 
@@ -95,7 +97,7 @@ public class GpioDevice implements AutoCloseable {
     public GpioDevice( String path ) throws LinuxException {
 
         int fd = LinuxIO.open64( path           ,
-                                 LinuxIO.O_RDWR ) ;
+                                 LinuxIO.O_RDONLY ) ;
 
         if ( fd < 0 ) throw new LinuxException( "Unable to open GPIO device" ) ;
 
@@ -212,14 +214,25 @@ public class GpioDevice implements AutoCloseable {
     public GpioLineInfo requestLineInfo( int          line ,
                                          GpioLineInfo info ) throws LinuxException {
 
+        System.out.println( "Is out 1 : " + info.getFlags().isOutput() ) ;
         info.setLine( line ) ;
+        System.out.println( "Is out 2 : " + info.getFlags().isOutput() ) ;
     
+        Pointer ptr = new Pointer( Pointer.nativeValue( info.memory ) ) ;
+
+        System.out.println( "FLAGS = " + ptr.getInt( 4 ) ) ;
         if ( LinuxIO.ioctl( this.fd                 ,
                             GPIO_GET_LINEINFO_IOCTL ,
                             info.memory             ) < 0 ) {
             
             throw new LinuxException( "Unable to retrieve information about the request GPIO line" ) ;
         }
+
+        Pointer ptr2 = new Pointer( Pointer.nativeValue( info.memory ) ) ;
+
+        System.out.println( "FLAGS = " + ptr2.getInt( 4 ) ) ;
+
+        System.out.println( "Is out 3 : " + info.getFlags().isOutput() ) ;
 
         return info ;
     }
