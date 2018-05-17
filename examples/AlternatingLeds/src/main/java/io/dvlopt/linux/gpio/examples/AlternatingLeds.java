@@ -24,14 +24,16 @@ import io.dvlopt.linux.gpio.*         ;
 
 
 
-/**
+/*
  * In this example, 3 leds are alternating every 500 milliseconds.
- * <p>
+ *
  * It works out of the box with a Raspberry Pi 3 and should work on any other board
  * exposing a GPIO character device.
- * <p>
+ *
  * You need to make sure that the user running this program has permissions for the needed
  * character device, '/dev/gpiochip0' in this example.
+ *
+ * Attention, error checking not included !
  */
 public class AlternatingLeds {
 
@@ -92,11 +94,11 @@ public class AlternatingLeds {
 
         System.out.println( "\n\nStarting alternating leds..." ) ;
 
-        // Opening our gpio device.
+        // Opens our gpio device.
         //
         GpioDevice device = new GpioDevice( PATH_TO_DEVICE ) ;
 
-        // Creating a handle request for outputs.
+        // Creates a handle request for outputs.
         //
         GpioHandleRequest request = new GpioHandleRequest().setConsumer( "my-program" )
                                                            .setFlags( new GpioFlags().setOutput() ) ;
@@ -112,9 +114,14 @@ public class AlternatingLeds {
         GpioLine led2 = request.addLine( LINE_NUMBER_2 ,
                                          false         ) ;
 
-        // Obtaines a handle for controlling our leds.
+        // Obtains a handle for controlling our leds.
         //
         GpioHandle handle = device.requestHandle( request ) ;
+
+        // It is a good practise to close our GPIO device since we do not need it anymore and doing so
+        // will not close our handle.
+        //
+        device.close() ;
 
         // Creates a buffer for writing the state of our leds.
         GpioBuffer buffer = new GpioBuffer() ;

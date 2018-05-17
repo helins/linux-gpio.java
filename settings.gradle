@@ -8,7 +8,11 @@
  */
 
 
-include 'lib', 'examples:AlternatingLeds'
+include 'lib'                      ,
+        'examples:AlternatingLeds' ,
+        'examples:PushButtons'
+
+
 
 
 rootProject.name = 'linux-gpio'

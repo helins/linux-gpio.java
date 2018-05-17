@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+
+
+
+dependencies {
+    compile project( ':lib' )
+}
+
+
+
+
+mainClassName = 'io.dvlopt.linux.gpio.examples.PushButtons'
