@@ -1,6 +1,6 @@
 # linux-gpio
 
-Handle [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output) pins
+Handle [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output) lines 
 on a Linux system in a portable and fast way from the JVM.
 
 - Control several lines at once
@@ -10,18 +10,18 @@ on a Linux system in a portable and fast way from the JVM.
 
 ## Rationale
 
-Handling GPIO pins on a Linux system is typically done by writing directly to
-/dev/mem or to the more permissive /dev/gpiomem. While being fast, this approach
-is very closely thight to the hardware which means the code is not portable.
-Another way is to use the sysfs method where each pin is exported and
-represented in the file system. Users can read and write specific files for
-configuration and IO. While being standard, this method is slow and deprecated.
-Both methods present caveats. For instance, there is no way to claim pins nor
-any kind of automatic clean-up.
+Handling GPIO lines from user space on a Linux system is typically done by
+writing directly to /dev/mem or to the more permissive /dev/gpiomem. While being
+fast, this approach is very closely thight to the hardware which means the code
+is not portable.  Another way is to use the sysfs method where each pin is
+exported and represented in the file system. Users can read and write specific
+files for configuration and IO. While being standard, this method is slow and
+deprecated.  Both methods present caveats. For instance, there is no way to
+claim pins nor any kind of automatic clean-up.
 
 Since Linux 4.8, a new API is provided. It is not widely known nor used in spite
 of the fact it is standard and fast. Certain platforms such as Raspbian on the
-Raspberry Pi already supports this API. This Java library wraps the C API in
+Raspberry Pi already support this API. This Java library wraps the C API in
 order to provide a more idiomatic interface accessible from the JVM while trying
 not to be too opiniated.
 
@@ -29,6 +29,24 @@ not to be too opiniated.
 
 Simply read the
 [javadoc](https://dvlopt.github.io/doc/java/linux-gpio/index.html).
+
+Have a look at [examples](./examples).
+
+Run an example where `$EXAMPLE` is the name of an example such as
+`AlternatingLeds` :
+```bash
+./gradlew :examples:$EXAMPLE:run
+```
+
+Run tests :
+```bash
+./gradlew test
+```
+
+Run tests on the Raspberry Pi 3 (or similar), will test some IO :
+```bash
+./gradlew test -DonRaspberry=true
+```
 
 ## Resources
 

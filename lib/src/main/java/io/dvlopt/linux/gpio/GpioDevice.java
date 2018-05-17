@@ -96,7 +96,7 @@ public class GpioDevice implements AutoCloseable {
      */
     public GpioDevice( String path ) throws LinuxException {
 
-        int fd = LinuxIO.open64( path           ,
+        int fd = LinuxIO.open64( path             ,
                                  LinuxIO.O_RDONLY ) ;
 
         if ( fd < 0 ) throw new LinuxException( "Unable to open GPIO device" ) ;
