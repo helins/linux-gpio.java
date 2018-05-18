@@ -27,25 +27,33 @@ not to be too opiniated.
 
 ## Usage
 
-Simply read the
-[javadoc](https://dvlopt.github.io/doc/java/linux-gpio/index.html).
+Any accessed GPIO device need at least read permission (which is enough even
+for writing). Typically, only the root user has access, hence permissions need
+to be set. For instance, for device 0 on a Raspberry Pi (user pi) :
 
-Have a look at [examples](./examples).
+```bash
+$ chown root:pi /dev/gpiochip0
+$ chmod g+r /dev/gpiochip0
+```
+
+Here is the [javadoc](https://dvlopt.github.io/doc/java/linux-gpio/index.html).
+
+Have a look at the [examples](./examples).
 
 Run an example where `$EXAMPLE` is the name of an example such as
 `AlternatingLeds` :
 ```bash
-./gradlew :examples:$EXAMPLE:run
+$ ./gradlew :examples:$EXAMPLE:run
 ```
 
 Run tests :
 ```bash
-./gradlew test
+$ ./gradlew test
 ```
 
 Run tests on the Raspberry Pi 3 (or similar), will test some IO :
 ```bash
-./gradlew test -DonRaspberry=true
+$ ./gradlew test -DonRaspberry=true
 ```
 
 ## Resources
