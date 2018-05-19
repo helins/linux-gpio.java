@@ -1,5 +1,9 @@
 # linux-gpio
 
+[
+![Download](https://api.bintray.com/packages/dvlopt/maven/linux-gpio/images/download.svg)
+](https://bintray.com/dvlopt/maven/linux-gpio/_latestVersion)
+
 Handle [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output) lines 
 on a Linux system in a portable and fast way from the JVM.
 
