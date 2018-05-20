@@ -4,6 +4,10 @@
 ![Download](https://api.bintray.com/packages/dvlopt/maven/linux-gpio/images/download.svg)
 ](https://bintray.com/dvlopt/maven/linux-gpio/_latestVersion)
 
+[![Maven
+Central](https://maven-badges.herokuapp.com/maven-central/io.dvlopt/linux-gpio/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.dvlopt/linux-gpio)
+
+
 Handle [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output) lines 
 on a Linux system in a portable and fast way from the JVM.
 
