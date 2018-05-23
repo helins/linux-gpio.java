@@ -214,13 +214,10 @@ public class GpioDevice implements AutoCloseable {
     public GpioLineInfo requestLineInfo( int          line ,
                                          GpioLineInfo info ) throws LinuxException {
 
-        System.out.println( "Is out 1 : " + info.getFlags().isOutput() ) ;
         info.setLine( line ) ;
-        System.out.println( "Is out 2 : " + info.getFlags().isOutput() ) ;
     
         Pointer ptr = new Pointer( Pointer.nativeValue( info.memory ) ) ;
 
-        System.out.println( "FLAGS = " + ptr.getInt( 4 ) ) ;
         if ( LinuxIO.ioctl( this.fd                 ,
                             GPIO_GET_LINEINFO_IOCTL ,
                             info.memory             ) < 0 ) {
@@ -229,10 +226,6 @@ public class GpioDevice implements AutoCloseable {
         }
 
         Pointer ptr2 = new Pointer( Pointer.nativeValue( info.memory ) ) ;
-
-        System.out.println( "FLAGS = " + ptr2.getInt( 4 ) ) ;
-
-        System.out.println( "Is out 3 : " + info.getFlags().isOutput() ) ;
 
         return info ;
     }
