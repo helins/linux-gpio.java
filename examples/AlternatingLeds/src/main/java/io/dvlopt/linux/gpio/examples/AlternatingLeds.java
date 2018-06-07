@@ -18,8 +18,8 @@
 package io.dvlopt.linux.gpio.examples ;
 
 
-import io.dvlopt.linux.LinuxException ;
-import io.dvlopt.linux.gpio.*         ;
+import io.dvlopt.linux.gpio.* ;
+import java.io.IOException    ;
 
 
 
@@ -71,7 +71,7 @@ public class AlternatingLeds {
                                  GpioBuffer buffer      ,
                                  GpioLine   previousLed ,
                                  GpioLine   nextLed     ) throws InterruptedException ,
-                                                                 LinuxException       {
+                                                                 IOException          {
     
         buffer.set( previousLed ,
                     false       ) ;
@@ -90,7 +90,7 @@ public class AlternatingLeds {
     // Our example program.
     //
     public static void main( String[] args ) throws InterruptedException ,
-                                                    LinuxException       {
+                                                    IOException          {
 
         System.out.println( "\n\nStarting alternating leds..." ) ;
 

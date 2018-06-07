@@ -26,7 +26,10 @@ package io.dvlopt.linux.gpio ;
 public class GpioLine {
 
 
+    // Position of the line in a GPIO buffer.
+    //
     final int index ;
+
 
     /**
      * The number of the line.
@@ -36,10 +39,13 @@ public class GpioLine {
 
 
 
+
+    // Private constructor
+    //
     GpioLine( int lineNumber ,
               int index      ) {
     
         this.lineNumber = lineNumber ;
-        this.index      = index ;
+        this.index      = index      ;
     }
 }

@@ -19,9 +19,10 @@ package io.dvlopt.linux.gpio ;
 
 
 import com.sun.jna.NativeLong          ;
-import io.dvlopt.linux.LinuxException  ;
+import io.dvlopt.linux.Linux           ;
 import io.dvlopt.linux.gpio.GpioBuffer ;
 import io.dvlopt.linux.io.LinuxIO      ;
+import java.io.IOException             ;
 
 
 
@@ -34,6 +35,9 @@ import io.dvlopt.linux.io.LinuxIO      ;
 public class GpioHandle implements AutoCloseable {
 
 
+    //
+    // IOCTL requests.
+    //
     static final NativeLong GPIOHANDLE_GET_LINE_VALUES_IOCTL = new NativeLong( 3225465864L ,
                                                                                true        ) ;
 
@@ -41,13 +45,20 @@ public class GpioHandle implements AutoCloseable {
                                                                                true        ) ;
 
 
+    // Associated file descriptor.
+    //
     final int fd ;
 
+
+    // Bookkeeping of state.
+    //
     private boolean isClosed = false ;
 
 
 
 
+    // Private constructor
+    //
     GpioHandle( int fd ) {
     
         this.fd = fd   ;
@@ -57,20 +68,63 @@ public class GpioHandle implements AutoCloseable {
 
 
     /**
+     * Closes this GPIO handle and releases resources.
+     *
+     * @throws IOException
+     *           When an unplanned error occured.
+     */
+    public void close() throws IOException {
+
+        if ( this.isClosed == false ) {
+
+            if ( LinuxIO.close( this.fd ) != 0 ) {
+            
+                throw new IOException( "Native error while closing GPIO handle : errno " + Linux.getErrno() ) ;
+            }
+
+            this.isClosed = true ;
+        }
+    }
+
+
+
+
+    // Throws an IllegalStateException if the handle is closed.
+    // Meant to be used before IO operations.
+    //
+    private void guardClosed() {
+    
+        if ( this.isClosed ) {
+        
+            throw new IllegalStateException( "Unable to perform IO operation on closed GPIO handle" ) ;
+        }
+    }
+
+
+
+
+    /**
      * Reads the current state of the lines this handle controls and writes it back to the given
      * buffer.
      *
-     * @param buffer  Buffer meant to store the data.
+     * @param  buffer
+     *           Buffer meant to store the data.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the handle has been closed.
+     *
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public void read( GpioBuffer buffer ) throws LinuxException {
+    public void read( GpioBuffer buffer ) throws IOException {
+
+        this.guardClosed() ;
     
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_GET_LINE_VALUES_IOCTL ,
                             buffer.getPointer()              ) < 0 ) {
         
-            throw new LinuxException( "Unable to read values for the given GPIO handle" ) ;
+            throw new IOException( "Native error while reading a GPIO handle : errno " + Linux.getErrno() ) ;
         }
     }
 
@@ -80,40 +134,26 @@ public class GpioHandle implements AutoCloseable {
     /**
      * Writes the new state of the lines this handle controls using the given buffer.
      * <p>
-     * Obviously, this methods does not do much for inputs.
+     * Obviously, this methods does not do anything for inputs.
      *
-     * @param buffer  Buffer holding the new state of the lines.
+     * @param  buffer
+     *           Buffer holding the new state of the lines.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the handle has been closed.
+     *
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public void write( GpioBuffer buffer ) throws LinuxException {
+    public void write( GpioBuffer buffer ) throws IOException {
+
+        this.guardClosed() ;
 
         if ( LinuxIO.ioctl( this.fd                          ,
                             GPIOHANDLE_SET_LINE_VALUES_IOCTL ,
                             buffer.getPointer()              ) < 0 ) {
 
-            throw new LinuxException( "Unable to write values for the given GPIO handle" ) ;
-        }
-    }
-
-
-
-
-    /**
-     * Closes this GPIO handle and releases resources.
-     *
-     * @throws LinuxException  When something fails on the native side.
-     */
-    public void close() throws LinuxException {
-
-        if ( this.isClosed == false ) {
-
-            if ( LinuxIO.close( this.fd ) != 0 ) {
-            
-                throw new LinuxException( "Unable to close this GPIO handle" ) ;
-            }
-
-            this.isClosed = true ;
+            throw new IOException( "Native error while writing to a GPIO handle : errno " + Linux.getErrno() ) ;
         }
     }
 }

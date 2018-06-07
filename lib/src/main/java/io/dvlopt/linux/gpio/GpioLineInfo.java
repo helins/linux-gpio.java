@@ -32,6 +32,8 @@ import io.dvlopt.linux.gpio.internal.NativeGpioLineInfo ;
 public class GpioLineInfo {
 
 
+    // Pointer to the native structure.
+    //
     final Memory memory ;
 
 
@@ -53,7 +55,7 @@ public class GpioLineInfo {
     /**
      * Retrieves the current consumer of this line.
      *
-     * @return  The name of the consumer or null.
+     * @return The name of the consumer or null.
      */
     public String getConsumer() {
 
@@ -91,7 +93,7 @@ public class GpioLineInfo {
     /**
      * Retrieves the name of this line.
      *
-     * @return  The name or null.
+     * @return The name or null.
      */
     public String getName() {
 
@@ -115,7 +117,7 @@ public class GpioLineInfo {
     /**
      * Retrieves flags qualifying this line.
      *
-     * @return  The flags.
+     * @return The flags.
      */
     public GpioFlags getFlags() {
 
@@ -128,7 +130,7 @@ public class GpioLineInfo {
     /**
      * Is this line currently used ?
      *
-     * @return  A boolean.
+     * @return True if the line is used.
      */
     public boolean isUsed() {
 

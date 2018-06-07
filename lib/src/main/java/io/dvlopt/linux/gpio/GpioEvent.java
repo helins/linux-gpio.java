@@ -18,9 +18,10 @@
 package io.dvlopt.linux.gpio ;
 
 
-import io.dvlopt.linux.LinuxException                    ;
+import io.dvlopt.linux.Linux                             ;
 import io.dvlopt.linux.gpio.internal.NativeGpioEventData ;
 import io.dvlopt.linux.io.LinuxIO                        ;
+import java.io.IOException                               ;
 
 
 
@@ -31,13 +32,20 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 public class GpioEvent {
 
 
+    // Values for representing edge detection.
+    //
     private static final int GPIO_EVENT_RISING_EDGE  = 0x01 ;
     private static final int GPIO_EVENT_FALLING_EDGE = 0x02 ;
 
 
+
+
+    // Internal native structure.
+    //
     final NativeGpioEventData nativeStruct = new NativeGpioEventData() ;
 
-
+    // ID associated with an event.
+    //
     int id = 0 ;
 
 
@@ -50,7 +58,9 @@ public class GpioEvent {
 
 
 
-    void read( int fd ) throws LinuxException{
+    // Reads an event from a file descriptor.
+    //
+    void read( int fd ) throws IOException {
 
         this.read( fd ,
                    0  ) ;
@@ -59,14 +69,16 @@ public class GpioEvent {
 
 
 
+    // Reads an event from a file descriptor and updating the ID.
+    //
     void read( int fd ,
-               int id ) throws LinuxException {
+               int id ) throws IOException {
     
         if ( LinuxIO.read( fd                             ,
                            this.nativeStruct.getPointer() ,
                            NativeGpioEventData.SIZE       ).intValue() < 0 ) {
         
-            throw new LinuxException( "Unable to read GPIO event" ) ;
+            throw new IOException( "Native error while reading a GPIO event : errno " + Linux.getErrno() ) ;
         }
 
         this.id = id ;

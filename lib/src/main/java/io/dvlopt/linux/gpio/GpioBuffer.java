@@ -39,6 +39,8 @@ public class GpioBuffer {
     public static final int SIZE = 64 ;
 
 
+    // Pointer to the buffer's native memory.
+    //
     private final Memory buffer ;
 
 
@@ -60,9 +62,10 @@ public class GpioBuffer {
     /**
      * Retrieves the state of a given line.
      *
-     * @param line  The GPIO line
+     * @param  line
+     *           The GPIO line
      *
-     * @return  A boolean representing the state.
+     * @return A boolean representing the state.
      */
     public boolean get( GpioLine line ) {
 
@@ -75,11 +78,13 @@ public class GpioBuffer {
     /**
      * Sets the new state of a given line.
      *
-     * @param line  The GPIO line.
+     * @param  line
+     *           The GPIO line.
      *
-     * @param value  The new state.
+     * @param  value
+     *           The new state.
      *
-     * @return  This GpioBuffer.
+     * @return This instance.
      */
     public GpioBuffer set( GpioLine line  ,
                            boolean  value ) {
@@ -97,9 +102,10 @@ public class GpioBuffer {
     /**
      * Toggles the state of a given line.
      *
-     * @param line  The GPIO line.
+     * @param  line
+     *           The GPIO line.
      *
-     * @return  This GpioBuffer.
+     * @return This instance.
      */
     public GpioBuffer toggle( GpioLine line ) {
     
@@ -115,7 +121,7 @@ public class GpioBuffer {
     /**
      * Clears this buffer by setting every state to false.
      *
-     * @return  This GpioBuffer.
+     * @return  This instance.
      */
     public GpioBuffer clear() {
     
@@ -127,6 +133,8 @@ public class GpioBuffer {
 
 
 
+    // Retrieves the pointer to the buffer's native memory.
+    //
     Pointer getPointer() {
     
         return (Pointer)( this.buffer ) ;

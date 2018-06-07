@@ -44,10 +44,14 @@ public enum GpioEdgeDetection {
 
 
 
+    // Package protected internal value.
+    //
     int flags ;
 
 
-    GpioEdgeDetection( int flags ) {
+    // Private constructor.
+    //
+    private GpioEdgeDetection( int flags ) {
     
         this.flags = flags ;
     }

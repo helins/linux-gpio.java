@@ -21,12 +21,15 @@ import com.sun.jna.Pointer ;
 
 
 import com.sun.jna.NativeLong               ;
-import io.dvlopt.linux.LinuxException       ;
+import io.dvlopt.linux.Linux                ;
+import io.dvlopt.linux.errno.Errno          ;
 import io.dvlopt.linux.gpio.GpioChipInfo    ;
 import io.dvlopt.linux.gpio.GpioLineInfo    ;
 import io.dvlopt.linux.gpio.GpioEventHandle ;
 import io.dvlopt.linux.gpio.GpioHandle      ;
 import io.dvlopt.linux.io.LinuxIO           ;
+import java.io.FileNotFoundException        ;
+import java.io.IOException                  ;
 
 
 
@@ -66,6 +69,10 @@ import io.dvlopt.linux.io.LinuxIO           ;
 public class GpioDevice implements AutoCloseable {
 
 
+    //
+    // IOCTL requests.
+    //
+
     private static final NativeLong GPIO_GET_CHIPINFO_IOCTL   = new NativeLong( 2151986177L ,
                                                                                 true        ) ; 
 
@@ -81,7 +88,13 @@ public class GpioDevice implements AutoCloseable {
 
 
 
-    private int     fd               ;
+    // Associated file descriptor.
+    //
+    private int fd ;
+
+
+    // Bookkeeping of state.
+    //
     private boolean isClosed = false ;
 
 
@@ -90,16 +103,30 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Opens the GPIO device located at the given path.
      *
-     * @param path  Path to the GPIO device.
+     * @param  path
+     *           Path to the GPIO device.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public GpioDevice( String path ) throws LinuxException {
+    public GpioDevice( String path ) throws IOException {
 
         int fd = LinuxIO.open64( path             ,
                                  LinuxIO.O_RDONLY ) ;
 
-        if ( fd < 0 ) throw new LinuxException( "Unable to open GPIO device" ) ;
+        if ( fd < 0 ) {
+
+            int errno = Linux.getErrno() ;
+
+            switch ( errno ) {
+
+                case Errno.EACCES : throw new FileNotFoundException( "Permission denied : " + path )                                     ;
+
+                case Errno.ENOENT : throw new FileNotFoundException( "No such file : " + path )                                          ;
+        
+                default           : throw new IOException( "Native error while opening GPIO device at '" + path + "' : errno " + errno ) ;
+            }
+        }
 
         this.fd = fd ;
     }
@@ -110,11 +137,13 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Opens a GPIO device by number.
      *
-     * @param number  Number of the GPIO device.
+     * @param  number
+     *           Number of the GPIO device.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public GpioDevice( int number ) throws LinuxException {
+    public GpioDevice( int number ) throws IOException {
     
         this( "/dev/gpiochip" + number ) ;
     }
@@ -125,15 +154,16 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Closes this GPIO device.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public void close() throws LinuxException {
+    public void close() throws IOException {
 
         if ( this.isClosed == false ) {
 
             if ( LinuxIO.close( this.fd ) != 0 ) {
             
-                throw new LinuxException( "Unable to close GPIO device" ) ;
+                throw new IOException( "Native error while closing GPIO device : errno " + Linux.getErrno() ) ;
             }
 
             this.isClosed = true ;
@@ -143,14 +173,45 @@ public class GpioDevice implements AutoCloseable {
 
 
 
+    // Throws an IllegalStateException if the GPIO device is closed.
+    //
+    private void guardClosed() {
+    
+        if ( this.isClosed ) {
+        
+            throw new IllegalStateException( "Unable to perform IO operation on a closed GPIO device" ) ;
+        }
+    }
+
+
+
+
+    // Throws an IOException if errno seems to indicate that the GPIO device is inappropriate.
+    // For instance, it is possible to open a regular file and obviously, nothing will work.
+    //
+    private static void throwIfBadDevice( int errno ) throws IOException {
+    
+        if ( errno == Errno.ENOTTY ) {
+        
+            throw new IOException( "Device does not support this GPIO operation" ) ;
+        }
+    }
+
+
+
+
     /**
      * Obtains information about this GPIO device.
      *
-     * @return  Basic information about this GPIO device.
+     * @return Information.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
-    public GpioChipInfo requestChipInfo() throws LinuxException {
+    public GpioChipInfo requestChipInfo() throws IOException {
     
         return this.requestChipInfo( new GpioChipInfo() ) ;
     }
@@ -161,22 +222,33 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Obtains information about this GPIO device and writes it to `<code>info</code>`.
      *
-     * @param info  Where the data will be written.
+     * @param  info
+     *           Will be overwritten.
      *
-     * @return  Basic information about this GPIO device.
+     * @return Information.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
-    public GpioChipInfo requestChipInfo( GpioChipInfo info ) throws LinuxException {
-    
-       if ( LinuxIO.ioctl( this.fd                 ,
-                           GPIO_GET_CHIPINFO_IOCTL ,
-                           info.memory             ) < 0 ) {
-           
-           throw new LinuxException( "Unable to retrieve informations about GPIO device" ) ;
-       }
+    public GpioChipInfo requestChipInfo( GpioChipInfo info ) throws IOException {
 
-       return info ;
+        this.guardClosed() ;
+    
+        if ( LinuxIO.ioctl( this.fd                 ,
+                            GPIO_GET_CHIPINFO_IOCTL ,
+                            info.memory             ) < 0 ) {
+
+            int errno = Linux.getErrno() ;
+
+            throwIfBadDevice( errno ) ;
+
+            throw new IOException( "Native error while requesting chip information : errno " + errno ) ;
+        }
+
+        return info ;
     }
 
 
@@ -185,13 +257,18 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Obtains information about a particular GPIO line from this GPIO device.
      *
-     * @param line  The number of the line.
+     * @param  line 
+     *           Number of the line.
      *
-     * @return  Basic information about the GPIO line.
+     * @return Information.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
-    public GpioLineInfo requestLineInfo( int line ) throws LinuxException {
+    public GpioLineInfo requestLineInfo( int line ) throws IOException {
     
         return this.requestLineInfo( line               ,
                                      new GpioLineInfo() ) ;
@@ -201,18 +278,26 @@ public class GpioDevice implements AutoCloseable {
 
 
     /**
-     * Obtains information about a particular GPIO line from this GPIO device and writes it to `<code>info</code>`.
+     * Obtains information about a particular GPIO line from this GPIO device and writes it to `<strong>info</strong>`.
      *
-     * @param line  The number of the line.
+     * @param  line 
+     *           Number of the line.
      *
-     * @param info  Where the data will be written.
+     * @param  info
+     *           Will be overwritten.
      *
-     * @return  Basic information about the GPIO line.
+     * @return Information.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
     public GpioLineInfo requestLineInfo( int          line ,
-                                         GpioLineInfo info ) throws LinuxException {
+                                         GpioLineInfo info ) throws IOException {
+
+        this.guardClosed() ;
 
         info.setLine( line ) ;
     
@@ -221,13 +306,32 @@ public class GpioDevice implements AutoCloseable {
         if ( LinuxIO.ioctl( this.fd                 ,
                             GPIO_GET_LINEINFO_IOCTL ,
                             info.memory             ) < 0 ) {
-            
-            throw new LinuxException( "Unable to retrieve information about the request GPIO line" ) ;
+
+            int errno = Linux.getErrno() ;
+
+            throwIfBadDevice( errno ) ;
+
+            throw new IOException( "Native error while requesting information about a GPIO line : errno " + errno ) ;
         }
 
-        Pointer ptr2 = new Pointer( Pointer.nativeValue( info.memory ) ) ;
-
         return info ;
+    }
+
+
+
+
+    // Throws if a line is already being used or a handle/event-handle request is invalid.
+    //
+    private static void throwIfHandleError( int errno ) throws IOException {
+
+        throwIfBadDevice( errno ) ;
+    
+        switch ( errno ) {
+
+            case Errno.EBUSY  : throw new IOException( "At least one request line is already being used elsewhere" )                     ;
+
+            case Errno.EINVAL : throw new IllegalArgumentException( "Part of the request for a GPIO handle or event handle is invalid" ) ;
+        }
     }
 
 
@@ -236,19 +340,33 @@ public class GpioDevice implements AutoCloseable {
     /**
      * Obtains a GPIO handle for driving the requested GPIO lines.
      *
-     * @param request  Request specifying what lines will be handled and how.
+     * @param  request
+     *           Request specifying what lines will be handled and how.
      *
-     * @return  A GPIO handle.
+     * @return A GPIO handle.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IllegalArgumentException
+     *           When something about the request is invalid, such as the number of a line.
+     *
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
-    public GpioHandle requestHandle( GpioHandleRequest request ) throws LinuxException {
+    public GpioHandle requestHandle( GpioHandleRequest request ) throws IOException {
+
+        this.guardClosed() ;
     
         if ( LinuxIO.ioctl( this.fd                   ,
                             GPIO_GET_LINEHANDLE_IOCTL ,
                             request.memory            ) < 0 ) {
-        
-            throw new LinuxException( "Unable to provide a GPIO handle" ) ;
+
+            int errno = Linux.getErrno() ;
+
+            throwIfHandleError( errno ) ;
+
+            throw new IOException( "Native error while requesting a GPIO handle : errno " + errno ) ;
         }
 
         return new GpioHandle( request.getFD() ) ;
@@ -262,19 +380,34 @@ public class GpioDevice implements AutoCloseable {
      * <p>
      * This handle can be used to read the current value of the line or wait for an interrupt.
      *
-     * @param request  Request specifying which line will be monitored and how.
+     * @param  request
+     *           Request specifying which line will be monitored and how.
      *
-     * @return  A GPIO event handle.
+     * @return A GPIO event handle.
      *
-     * @throws LinuxException  When something fails on the native side.
+     *
+     * @throws IllegalArgumentException
+     *           When something about the request is invalid, such as the number of the line.
+     *
+     * @throws IllegalStateException
+     *           When the GPIO device has been closed.
+     *
+     * @throws IOException
+     *           When the device is not a proper GPIO device or an unplanned error occured.
      */
-    public GpioEventHandle requestEvent( GpioEventRequest request ) throws LinuxException {
+    public GpioEventHandle requestEvent( GpioEventRequest request ) throws IOException {
+
+        this.guardClosed() ;
 
         if ( LinuxIO.ioctl( this.fd                  ,
                             GPIO_GET_LINEEVENT_IOCTL ,
                             request.memory           ) < 0 ) {
-        
-            throw new LinuxException( "Unable to provide a GPIO event handle" ) ;
+
+            int errno = Linux.getErrno() ;
+
+            throwIfHandleError( errno ) ;
+
+            throw new IOException( "Native error while requesting a GPIO event handle : errno " + errno ) ;
         }
 
         return new GpioEventHandle( request.getFD()   ,

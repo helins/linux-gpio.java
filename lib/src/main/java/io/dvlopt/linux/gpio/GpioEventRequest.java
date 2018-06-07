@@ -37,12 +37,21 @@ import io.dvlopt.linux.gpio.internal.NativeGpioEventRequest ;
 public class GpioEventRequest {
 
 
+    // Gpio flags meant to be reused
+    //
     private static final int DEFAULT_FLAGS = new GpioFlags().setInput()
                                                             .forRequest() ;
 
+    
+
+
+    // Pointer to the native structure
+    //
     final Memory memory ;
 
 
+    // Selected edge-detection mode ;
+    //
     private GpioEdgeDetection edgeDetection ;
 
 
@@ -51,7 +60,8 @@ public class GpioEventRequest {
     /**
      * Basic constructor requesting a regular input for both rising and falling edge.
      *
-     * @param line  The number of the line.
+     * @param line
+     *          Number of the line.
      */
     public GpioEventRequest( int line ) {
     
@@ -66,9 +76,11 @@ public class GpioEventRequest {
     /**
      * Constructor requesting a regular input leaving the choice of edge-detection.
      *
-     * @param line  The number of the line.
+     * @param line
+     *          Number of the line.
      *
-     * @param edgeDetection  The kind of edge-detection.
+     * @param edgeDetection
+     *          Edge-detection mode.
      */
     public GpioEventRequest( int               line          ,
                              GpioEdgeDetection edgeDetection ) {
@@ -84,11 +96,14 @@ public class GpioEventRequest {
     /**
      * Constructor leaving all configuration to the user.
      *
-     * @param line  The number of the line.
+     * @param line
+     *          Number of the line.
      *
-     * @param edgeDetection  The kind of edge-detection.
+     * @param edgeDetection
+     *          Edge-detection mode.
      *
-     * @param flags  Flags describing how the line will be handled.
+     * @param flags
+     *          Flags describing how the line will be handled.
      */
     public GpioEventRequest( int           line              ,
                              GpioEdgeDetection edgeDetection ,
@@ -133,22 +148,11 @@ public class GpioEventRequest {
 
 
 
-    public GpioEventRequest setFlags( GpioFlags flags ) {
-    
-        return this.setRawFlags( flags.forRequest() ) ;
-    }
-
-
-
-
-    public GpioEventRequest unsetFlags() {
-    
-        return this.setRawFlags( 0 ) ;
-    }
-
-
-
-
+    /**
+     * Retrieves the flags describing how the lines involved in this request should be handled.
+     *
+     * @return Flags.
+     */
     public GpioFlags getFlags() {
     
         return new GpioFlags().fromRequest( this.memory.getInt( NativeGpioEventRequest.OFFSET_HANDLE_FLAGS ) ) ;
@@ -158,9 +162,40 @@ public class GpioEventRequest {
 
 
     /**
+     * Sets flags describing how the lines involved in this request should be handled.
+     *
+     * @param flags
+     *          Flags.
+     *
+     * @return This instance.
+     */
+    public GpioEventRequest setFlags( GpioFlags flags ) {
+    
+        return this.setRawFlags( flags.forRequest() ) ;
+    }
+
+
+
+
+    /**
+     * Clears the flags associated with this requests.
+     * <p>
+     * Means that lines will be requested "as-is".
+     *
+     * @return This instance.
+     */
+    public GpioEventRequest unsetFlags() {
+    
+        return this.setRawFlags( 0 ) ;
+    }
+
+
+
+
+    /**
      * Retrieves what kind of edge-detection this request if for.
      *
-     * @return The kind of edge-detection.
+     * @return Edge-detection mode.
      */
     public GpioEdgeDetection getEdgeDetection() {
     
@@ -173,9 +208,10 @@ public class GpioEventRequest {
     /**
      * Selects edge-detection.
      *
-     * @param edgeDetection The kind of edge-detection.
+     * @param  edgeDetection
+     *           Edge-detection mode.
      *
-     * @return  This GpioEventRequest.
+     * @return This instance.
      */
     public GpioEventRequest setEdgeDetection( GpioEdgeDetection edgeDetection ) {
 
@@ -203,7 +239,7 @@ public class GpioEventRequest {
     /**
      * Retrieves which line will be requested.
      *
-     * @return  The number of the line.
+     * @return Number of the line.
      */
     public int getLine() {
     
@@ -216,9 +252,10 @@ public class GpioEventRequest {
     /**
      * Selects which line will be requested.
      *
-     * @param line  The number of the line.
+     * @param line
+     *          Number of the line.
      *
-     * @return  This GpioEventRequest.
+     * @return This instance.
      */
     public GpioEventRequest setLine( int line ) {
 
@@ -234,7 +271,7 @@ public class GpioEventRequest {
     /**
      * Retrieves the consumer this line will be request under.
      *
-     * @return  The name of the consumer.
+     * @return Name of the consumer or null if none.
      */
     public String getConsumer() {
 
@@ -248,9 +285,13 @@ public class GpioEventRequest {
     /**
      * Sets the consumer this line will be request under.
      *
-     * @param consumer  The name of the consumer, length must be smaller than 32.
+     * @param  consumer
+     *           Name of the consumer, length must be smaller than 32.
      *
-     * @return  This GpioEventRequest.
+     * @return This instance.
+     *
+     * @throws IllegalArgumentException 
+     *           When the length of the consumer is equal or greater than 32.
      */
     public GpioEventRequest setConsumer( String consumer ) {
 

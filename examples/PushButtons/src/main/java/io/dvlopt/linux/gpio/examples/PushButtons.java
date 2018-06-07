@@ -18,9 +18,8 @@
 package io.dvlopt.linux.gpio.examples ;
 
 
-import io.dvlopt.linux.LinuxException ;
-import io.dvlopt.linux.gpio.*         ;
-
+import io.dvlopt.linux.gpio.* ;
+import java.io.IOException    ;
 
 
 
@@ -72,7 +71,7 @@ public class PushButtons {
     // Our example program.
     //
     public static void main( String[] args ) throws InterruptedException ,
-                                                    LinuxException       {
+                                                    IOException          {
 
         System.out.println( "\n\nStarting push buttons...\n" ) ;
 

@@ -61,6 +61,8 @@ public class GpioFlags {
 
 
 
+    // Internal representation.
+    //
     private boolean isOutput     = false ;
     private boolean isActiveLow  = false ;
     private boolean isOpenDrain  = false ;
@@ -80,7 +82,7 @@ public class GpioFlags {
     /**
      * Sets as a digital input.
      *
-     * @return  This GpioFlags instance.
+     * @return This instance.
      */
     public GpioFlags setInput() {
     
@@ -95,7 +97,7 @@ public class GpioFlags {
     /**
      * Sets as a digital output.
      *
-     * @return  This GpioFlags instance.
+     * @return This instance.
      */
     public GpioFlags setOutput() {
     
@@ -112,9 +114,10 @@ public class GpioFlags {
      * <p>
      * A low signal will be logical high and vice-versa.
      *
-     * @param isActiveLow  Should be active low ?
+     * @param  isActiveLow
+     *           Should be active low ?
      *
-     * @return  This GpioFlags instance.
+     * @return This instance.
      */
     public GpioFlags setActiveLow( boolean isActiveLow ) {
     
@@ -132,9 +135,10 @@ public class GpioFlags {
      * For outputs, lines can be driven low but not high.
      * When driven high, the lines will actually be undefined and acting as inputs.
      *
-     * @param isOpenDrain  Should be open drain ?
+     * @param  isOpenDrain
+     *           Should be open drain ?
      *
-     * @return  This GpioFlags instance.
+     * @return This instance.
      */
     public GpioFlags setOpenDrain( boolean isOpenDrain ) {
     
@@ -152,9 +156,10 @@ public class GpioFlags {
      * For outputs, lines can be driven high but no low.
      * When driven low, the lines will actually be undefined and acting as inputs.
      *
-     * @param isOpenSource  Should be open source ?
+     * @param  isOpenSource
+     *           Should be open source ?
      *
-     * @return  This GpioFlags instance.
+     * @return This instance.
      */
     public GpioFlags setOpenSource( boolean isOpenSource ) {
     
@@ -169,7 +174,7 @@ public class GpioFlags {
     /**
      * Are those flags describing digital input(s) ?
      *
-     * @return  A boolean.
+     * @return A boolean.
      */
     public boolean isInput() {
     

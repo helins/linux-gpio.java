@@ -18,13 +18,14 @@
 package io.dvlopt.linux.gpio ;
 
 
-import io.dvlopt.linux.LinuxException                    ;
+import io.dvlopt.linux.Linux                             ;
 import io.dvlopt.linux.gpio.GpioBuffer                   ;
 import io.dvlopt.linux.gpio.GpioEvent                    ;
 import io.dvlopt.linux.gpio.GpioHandle                   ;
 import io.dvlopt.linux.gpio.GpioLine                     ;
 import io.dvlopt.linux.gpio.internal.NativeGpioEventData ;
 import io.dvlopt.linux.io.LinuxIO                        ;
+import java.io.IOException                               ;
 
 
 
@@ -37,21 +38,53 @@ import io.dvlopt.linux.io.LinuxIO                        ;
 public class GpioEventHandle implements AutoCloseable {
 
 
+    // File descriptor associated with this handle.
+    //
     final int fd ;
 
+
+    // Line associated with this handle.
+    //
     private final GpioLine line ;
 
+
+    // Bookkeeping the state of this handle.
+    //
     private boolean isClosed = false ;
 
 
 
 
+    // Private constructor.
+    //
     GpioEventHandle( int fd   ,
                      int line ) {
 
         this.fd   = fd                   ;
         this.line = new GpioLine( line ,
                                   0    ) ;
+    }
+
+
+
+
+    /**
+     * Closes this GPIO handle and releases resources.
+     *
+     * @throws IOException
+     *           When an unplanned error occured.
+     */
+    public void close() throws IOException {
+
+        if ( this.isClosed == false ) {
+
+            if ( LinuxIO.close( this.fd ) != 0 ) {
+            
+                throw new IOException( "Native error while closing a GPIO event handle for line " + this.line.lineNumber + " : errno " + Linux.getErrno() ) ;
+            }
+
+            this.isClosed = true ;
+        }
     }
 
 
@@ -74,17 +107,19 @@ public class GpioEventHandle implements AutoCloseable {
      * Reads the current state of the line this handle controls and write it back to the given
      * buffer.
      *
-     * @param buffer  Buffer meant to hold the data.
+     * @param  buffer
+     *           Buffer meant to hold the data.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public void read( GpioBuffer buffer ) throws LinuxException {
+    public void read( GpioBuffer buffer ) throws IOException {
     
         if ( LinuxIO.ioctl( this.fd                                     ,
                             GpioHandle.GPIOHANDLE_GET_LINE_VALUES_IOCTL ,
                             buffer.getPointer()                         ) < 0 ) {
         
-            throw new LinuxException( "Unable to read the line using the given GPIO event handle" ) ;
+            throw new IOException( "Native error while reading GPIO event handle for line " + this.line.lineNumber + " : errno " + Linux.getErrno() ) ;
         }
     }
 
@@ -94,11 +129,12 @@ public class GpioEventHandle implements AutoCloseable {
     /**
      * Waits for an event to happen.
      *
-     * @return  Information about what happened.
+     * @return  The event.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws  IOException
+     *            When an unplanned error occured.
      */
-    public GpioEvent waitForEvent() throws LinuxException {
+    public GpioEvent waitForEvent() throws IOException {
 
         return this.waitForEvent( new GpioEvent() ) ;
     }
@@ -107,40 +143,21 @@ public class GpioEventHandle implements AutoCloseable {
 
 
     /**
-     * Waits for an event to happen and writes what happened to the given `<code>data</code>` object.
+     * Waits for an event to happen and writes what happened to the given `<strong>data</strong>` object.
      *
-     * @param data  Object for holding data about what happened.
+     * @param  data
+     *           Will hold data about what happened.
      *
-     * @return  Information about what happened.
+     * @return The event.
      *
-     * @throws LinuxException  When something fails on the native side.
+     * @throws IOException
+     *           When an unplanned error occured.
      */
-    public GpioEvent waitForEvent( GpioEvent data ) throws LinuxException {
+    public GpioEvent waitForEvent( GpioEvent data ) throws IOException {
 
         data.read( this.fd              ,
                    this.line.lineNumber ) ;
 
         return data ;
-    }
-
-
-
-
-    /**
-     * Closes this GPIO handle and releases resources.
-     *
-     * @throws LinuxException  When something fails on the native side.
-     */
-    public void close() throws LinuxException {
-
-        if ( this.isClosed == false ) {
-
-            if ( LinuxIO.close( this.fd ) != 0 ) {
-            
-                throw new LinuxException( "Unable to close this GPIO event handle" ) ;
-            }
-
-            this.isClosed = true ;
-        }
     }
 }

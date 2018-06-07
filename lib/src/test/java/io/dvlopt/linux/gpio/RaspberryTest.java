@@ -21,11 +21,11 @@ package io.dvlopt.linux.gpio ;
 import static org.junit.jupiter.api.Assertions.* ;
 
 
-import io.dvlopt.linux.LinuxException                          ;
 import io.dvlopt.linux.gpio.*                                  ;
 import org.junit.jupiter.api.DisplayName                       ;
 import org.junit.jupiter.api.Test                              ;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty ;
+import java.io.IOException                                     ;
 
 
 
@@ -47,7 +47,7 @@ public class RaspberryTest {
 
     @Test
     @DisplayName( "Getting information about a GPIO chip on the Raspberry Pi." )
-    void chipInfo() throws LinuxException {
+    void chipInfo() throws IOException {
     
         GpioDevice device = new GpioDevice( 0 ) ;
 
@@ -74,7 +74,7 @@ public class RaspberryTest {
 
     @Test
     @DisplayName( "Getting information about a GPIO line on the Raspberry Pi." )
-    void lineInfo() throws LinuxException {
+    void lineInfo() throws IOException {
     
         GpioDevice   device = new GpioDevice( 0 ) ;
         GpioLineInfo info   = new GpioLineInfo()  ;
@@ -182,7 +182,7 @@ public class RaspberryTest {
 
     @Test
     @DisplayName( "Writing to outputs on the Raspberry Pi." )
-    void outputs() throws LinuxException {
+    void outputs() throws IOException {
 
         GpioDevice device = new GpioDevice( 0 ) ;
         

@@ -42,6 +42,8 @@ import io.dvlopt.linux.gpio.internal.NativeGpioHandleRequest ;
 public class GpioHandleRequest {
 
 
+    // Pointer to the native structure.
+    //
     final Memory memory ;
 
 
@@ -76,9 +78,10 @@ public class GpioHandleRequest {
     /**
      * Sets flags specifying how the lines will be handled.
      *
-     * @param flags  Prepared flags.
+     * @param  flags
+     *           Prepared flags.
      *
-     * @return  This GpioHandleRequest.
+     * @return This instance.
      */
     public GpioHandleRequest setFlags( GpioFlags flags ) {
     
@@ -91,7 +94,7 @@ public class GpioHandleRequest {
     /**
      * The lines will be requested as they are.
      *
-     * @return  ThisGpioHandleRequest.
+     * @return This instance.
      */
     public GpioHandleRequest unsetFlags() {
     
@@ -104,7 +107,7 @@ public class GpioHandleRequest {
     /**
      * Retrieves the flags specifying how the lines will be handled.
      *
-     * @return  The flags.
+     * @return The flags.
      */
     public GpioFlags getFlags() {
     
@@ -131,9 +134,13 @@ public class GpioHandleRequest {
     /**
      * Sets the consumer of the requested lines.
      *
-     * @param  consumer  String representing the consumer, length must be smaller than 32.
+     * @param  consumer
+     *           String representing the consumer, length must be smaller than 32.
      *
-     * @return  This GpioHandleRequest.
+     * @return This instance.
+     *
+     * @throws IllegalArgumentException
+     *           When the length of the consumer is higher or equal than 32.
      */
     public GpioHandleRequest setConsumer( String consumer ) {
 
@@ -162,11 +169,12 @@ public class GpioHandleRequest {
      * <p>
      * A handle can drive at most 64 lines at once.
      *
-     * @param lineNumber  Which line.
+     * @param  lineNumber
+     *           Which line.
      *
-     * @return  A GPIO line useful for handling a buffer.
+     * @return A GPIO line useful for handling a buffer.
      *
-     * @see GpioBuffer
+     * @see    GpioBuffer
      */
     public GpioLine addLine( int lineNumber ) {
 
@@ -192,11 +200,13 @@ public class GpioHandleRequest {
      * <p>
      * Providing a default value works only for outputs and will be ignored for inputs.
      *
-     * @param lineNumber  Which line.
+     * @param  lineNumber
+     *           Which line.
      *
-     * @param value  Default value.
+     * @param  value
+     *           Default value.
      *
-     * @return  A GPIO line useful for handling a buffer.
+     * @return A GPIO line useful for handling a buffer.
      *
      * @see GpioBuffer
      */
