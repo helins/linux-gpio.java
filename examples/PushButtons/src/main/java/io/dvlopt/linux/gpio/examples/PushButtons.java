@@ -75,40 +75,54 @@ public class PushButtons {
 
         System.out.println( "\n\nStarting push buttons...\n" ) ;
 
-        // Opens our gpio device.
+        // Acquiring all needed GPIO resources in a "try-with-resources" manner to ensure they will be closed properly if
+        // anything goes wrong.
         //
-        GpioDevice device = new GpioDevice( PATH_TO_DEVICE ) ;
-
-        // Requests 2 event handles, 1 per push button, setting edge detection for reacting when
-        // buttons are released.
+        // We need a GPIO device, 1 event handle per input and a watcher for efficiently monitoring them both.
         //
-        GpioEventHandle handle1 = device.requestEvent( new GpioEventRequest( LINE_NUMBER_BUTTON_1      ,
-                                                                             GpioEdgeDetection.FALLING ) ) ;
+        try ( GpioDevice       device  = new GpioDevice( PATH_TO_DEVICE )                                         ;
 
-        GpioEventHandle handle2 = device.requestEvent( new GpioEventRequest( LINE_NUMBER_BUTTON_2      ,
-                                                                             GpioEdgeDetection.FALLING ) ) ;
+              GpioEventHandle  handle1 = device.requestEvent( new GpioEventRequest( LINE_NUMBER_BUTTON_1      ,
+                                                                                    GpioEdgeDetection.FALLING ) ) ;
 
-        // Creates a watcher and adds our event handles.
-        //
-        GpioEventWatcher watcher = new GpioEventWatcher().addHandle( handle1     ,
-                                                                     ID_BUTTON_1 )
-                                                         .addHandle( handle2     ,
-                                                                     ID_BUTTON_2 ) ;
+              GpioEventHandle  handle2 = device.requestEvent( new GpioEventRequest( LINE_NUMBER_BUTTON_2      ,
+                                                                                    GpioEdgeDetection.FALLING ) ) ;
 
-        // For holding data about an event.
-        //
-        GpioEvent event = new GpioEvent() ;
+              GpioEventWatcher watcher = new GpioEventWatcher()                                                   ;
+              
+              ) {
+              
+            // Now that our resources are acquired, let's do the rest.
 
-        System.out.println( "Come on, press any button and keep pressin' !\n" ) ;
+            // Adding our event handles to the watcher.
+            //
+            watcher.addHandle( handle1     ,
+                               ID_BUTTON_1 )
+                   .addHandle( handle2     ,
+                               ID_BUTTON_2 ) ;
 
-        // Keeps printing events and terminates program when nothing happens for a while.
-        //
-        while ( watcher.waitForEvent( event   ,
-                                      WAIT_MS ) ) {
-        
-            System.out.println( event.getNanoTimestamp() + " button " + event.getId() ) ;
+            // For holding data about events.
+            //
+            GpioEvent event = new GpioEvent() ;
+
+            System.out.println( "Come on, press any button and keep pressin' ! Program will terminates after " + WAIT_MS + "milliseconds of inactivity.\n" ) ;
+
+            // Keeps printing events and terminates program when nothing happens for a while.
+            //
+            while ( watcher.waitForEvent( event   ,
+                                          WAIT_MS ) ) {
+            
+                System.out.println( event.getNanoTimestamp() + " button " + event.getId() ) ;
+            }
+
+            System.out.println( "\nTimeout, terminating program..." ) ;
         }
 
-        System.out.println( "\nTimeout, terminating program..." ) ;
+        catch ( Throwable e ) {
+        
+            System.out.println( "\nDamn, something went wrong ! \n" ) ;
+
+            e.printStackTrace() ;
+        }
     }
 }

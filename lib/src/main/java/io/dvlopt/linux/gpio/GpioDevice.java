@@ -328,7 +328,7 @@ public class GpioDevice implements AutoCloseable {
     
         switch ( errno ) {
 
-            case Errno.EBUSY  : throw new IOException( "At least one request line is already being used elsewhere" )                     ;
+            case Errno.EBUSY  : throw new IOException( "A requested line is already being used elsewhere" )                              ;
 
             case Errno.EINVAL : throw new IllegalArgumentException( "Part of the request for a GPIO handle or event handle is invalid" ) ;
         }
