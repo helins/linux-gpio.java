@@ -70,8 +70,7 @@ public class PushButtons {
 
     // Our example program.
     //
-    public static void main( String[] args ) throws InterruptedException ,
-                                                    IOException          {
+    public static void main( String[] args ) {
 
         System.out.println( "\n\nStarting push buttons...\n" ) ;
 
@@ -105,7 +104,7 @@ public class PushButtons {
             //
             GpioEvent event = new GpioEvent() ;
 
-            System.out.println( "Come on, press any button and keep pressin' ! Program will terminates after " + WAIT_MS + "milliseconds of inactivity.\n" ) ;
+            System.out.println( "Come on, press any button and keep pressin' ! Program will terminates after " + WAIT_MS + " milliseconds of inactivity.\n" ) ;
 
             // Keeps printing events and terminates program when nothing happens for a while.
             //

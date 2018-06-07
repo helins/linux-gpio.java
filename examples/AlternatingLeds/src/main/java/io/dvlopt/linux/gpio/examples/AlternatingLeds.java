@@ -89,21 +89,16 @@ public class AlternatingLeds {
 
     // Our example program.
     //
-    public static void main( String[] args ) throws InterruptedException ,
-                                                    IOException          {
+    public static void main( String[] args ) {
 
-        System.out.println( "\n\nStarting alternating leds..." ) ;
+        System.out.println( "\n\nStarting alternating leds...\n" ) ;
 
-        // Opens our gpio device.
-        //
-        GpioDevice device = new GpioDevice( PATH_TO_DEVICE ) ;
-
-        // Creates a handle request for outputs.
+        // Creating a handle request for outputs.
         //
         GpioHandleRequest request = new GpioHandleRequest().setConsumer( "my-program" )
                                                            .setFlags( new GpioFlags().setOutput() ) ;
 
-        // Declares our leds and makes sure they are turned off.
+        // Declaring our leds and makes sure they will be turned off.
 
         GpioLine led0 = request.addLine( LINE_NUMBER_0 ,
                                          false         ) ;
@@ -114,37 +109,48 @@ public class AlternatingLeds {
         GpioLine led2 = request.addLine( LINE_NUMBER_2 ,
                                          false         ) ;
 
-        // Obtains a handle for controlling our leds.
+        // Creating a buffer for writing the state of our leds.
         //
-        GpioHandle handle = device.requestHandle( request ) ;
-
-        // It is a good practise to close our GPIO device since we do not need it anymore and doing so
-        // will not close our handle.
-        //
-        device.close() ;
-
-        // Creates a buffer for writing the state of our leds.
         GpioBuffer buffer = new GpioBuffer() ;
 
 
-        // Alternates leds for ever.
+        // Acquiring all needed GPIO resources in a "try-with-resources" manner in order to ensure they will be closed properly
+        // if anything goes wrong.
         //
-        while( true ) {
+        // We need a GPIO device and a unique handle for controlling all our leds.
+        //
+        try ( GpioDevice device = new GpioDevice( PATH_TO_DEVICE ) ;
+                
+              GpioHandle handle = device.requestHandle( request )  ;
 
-            nextLed( handle ,
-                     buffer ,
-                     led2   ,
-                     led0   ) ;
+              ) {
 
-            nextLed( handle ,
-                     buffer ,
-                     led0   ,
-                     led1   ) ;
+            // Alternates leds for ever.
+            //
+            while( true ) {
 
-            nextLed( handle ,
-                     buffer ,
-                     led1   ,
-                     led2   ) ;
+                nextLed( handle ,
+                         buffer ,
+                         led2   ,
+                         led0   ) ;
+
+                nextLed( handle ,
+                         buffer ,
+                         led0   ,
+                         led1   ) ;
+
+                nextLed( handle ,
+                         buffer ,
+                         led1   ,
+                         led2   ) ;
+            }
+        }
+
+        catch ( Throwable e ) {
+        
+            System.out.println( "\nDamn, something went wrong !i\n" ) ;
+
+            e.printStackTrace() ;
         }
     }
 }
