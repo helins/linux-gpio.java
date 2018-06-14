@@ -44,7 +44,8 @@ $ chown root:pi /dev/gpiochip0
 $ chmod g+r /dev/gpiochip0
 ```
 
-Here is the [javadoc](https://dvlopt.github.io/doc/java/linux-gpio/index.html).
+Here is the
+[javadoc](https://dvlopt.github.io/doc/java/io.dvlopt/linux-gpio/index.html).
 
 Have a look at the [examples](./examples).
 
