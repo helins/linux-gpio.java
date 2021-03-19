@@ -1,8 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.7.3'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'signing'
 }
 
 
@@ -10,28 +9,28 @@ plugins {
 
 def globalName    = 'linux-gpio'
 
-def globalVersion = '1.0.0'
+def globalVersion = '1.0.1'
 
-def globalDesc    = 'Use the standard Linux GPIO api from Java'
+def globalDesc    = 'Use the standard Linux GPIO API from Java'
 
-def globalUrl     = 'https://github.com/dvlopt/linux-gpio.java'
-
-
+def globalUrl     = 'https://github.com/helins/linux-gpio.java'
 
 
-group   = 'io.dvlopt'
+
+
+group   = 'io.helins'
 version = globalVersion
 
 
 
 
 dependencies {
-    api            'io.dvlopt:linux-common:0.1.1'
-    implementation 'io.dvlopt:linux-epoll:1.0.0'
-    implementation 'io.dvlopt:linux-errno:1.0.0'
-    implementation 'io.dvlopt:linux-io:0.0.3'
-    testCompile    'org.junit.jupiter:junit-jupiter-api:5.2.0'
-    testRuntime    'org.junit.jupiter:junit-jupiter-engine:5.2.0'
+    api            'io.helins:linux-common:0.1.4'
+    implementation 'io.helins:linux-epoll:1.0.1'
+    implementation 'io.helins:linux-errno:1.0.2'
+    implementation 'io.helins:linux-io:0.0.4'
+    testCompile    'org.junit.jupiter:junit-jupiter-api:5.7.1'
+    testRuntime    'org.junit.jupiter:junit-jupiter-engine:5.7.1'
 }
 
 
@@ -55,117 +54,17 @@ test {
 
 
 
-task sourcesJar( type:      Jar     ,
-                 dependsOn: classes ) {
-
-    classifier = 'sources'
-    from sourceSets.main.allSource
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 
 
 
-task javadocJar( type:      Jar     ,
-                 dependsOn: javadoc ) {
-
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-
-
-
-def pomConfig = {
-
-
-    licenses {
-        license {
-            name 'Apache License, Version 2.0'
-            url  'http://www.apache.org/licenses/LICENSE-2.0'
-        }
-    }
-
-
-    developers {
-        developer {
-            name            'Adam Helinski'
-            email           'adam@dvlopt.io'
-            organization    'Dvlopt'
-            organizationUrl 'http://dvlopt.io'
-        }
-    }
-
-
-    scm {
-        connection          'scm:git:git://github.com/dvlopt/linux-gpio.java.git'
-        developerConnection 'scm:git:ssh://github.com/dvlopt/linux-gpio.java.git'
-        url                 globalUrl
-    }
-}
-
-
-
-
-publishing {
-    publications {
-        mavenJava( MavenPublication ) {
-
-            groupId    group
-            artifactId 'linux-gpio'
-            version    globalVersion
-
-            from components.java
-
-            artifact sourcesJar
-            artifact javadocJar
-            
-            pom.withXml {
-                def root = asNode()
-
-                root.appendNode( 'name'     ,
-                                 globalName )
-
-                root.appendNode( 'description' ,
-                                 globalDesc    )
-
-                root.appendNode( 'url'     ,
-                                 globalUrl )
-
-                root.children().last() + pomConfig
-            }
-        }
-    }
-}
-
-
-
-
-bintray {
-    user = project.hasProperty( 'bintrayUser' ) ? project.property( 'bintrayUser' )
-                                                : System.getenv( 'BINTRAY_USER' )
-    key  = project.hasProperty( 'bintrayKey' ) ? project.property( 'bintrayKey' ) 
-                                               : System.getenv( 'BINTRAY_KEY' )
-
-    publications = [ 'mavenJava' ]
-
-    pkg {
-        repo                  = 'maven'
-        name                  = globalName
-        desc                  = globalDesc
-        licenses              = [ 'Apache-2.0' ]
-        websiteUrl            = globalUrl
-        vcsUrl                = 'https://github.com/dvlopt/linux-gpio.java.git'
-        labels                = [ 'java', 'jna', 'native', 'linux', 'gpio', 'standard' ]
-        publicDownloadNumbers = true
-        
-        version {
-            name   = globalVersion
-            vcsTag = globalVersion
-
-            gpg {
-                sign = true
-            }
-        }
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name": "io.helins.linux.gpio")
     }
 }
 
@@ -173,6 +72,89 @@ bintray {
 
 
 javadoc {
-    options.links( 'https://docs.oracle.com/javase/8/docs/api/'      ,
-                   'https://dvlopt.github.io/doc/java/linux-common/' )
+    options.links( "https://docs.oracle.com/en/java/javase/11/docs/api/" ,
+                   "https://javadoc.io/doc/io.helins/linux-common"       )
+}
+
+
+
+
+test {
+
+    useJUnitPlatform()
+
+    testLogging {
+
+        events "passed"  ,
+               "skipped" ,
+               "failed"
+    }
+
+    systemProperty( "raspduino"                       ,
+                    System.getProperty( "raspduino" ) ) ;
+}
+
+
+
+
+// Publishing to Maven
+
+
+publishing {
+
+
+    publications {
+        LibMaven( MavenPublication ) {
+
+            from components.java
+
+
+            pom {
+
+
+                name        = globalName
+                description = globalDesc
+                url         = globalUrl
+
+                licenses {
+                     license {
+                         name = "Mozilla Public License Version 2.0"
+                         url  = "https://www.mozilla.org/en-US/MPL/2.0/"
+                     }
+                }
+
+
+                developers {
+                    developer {
+                        name            = "Adam Helinski"
+                        email           = "adam@helins.io"
+                        organizationUrl = "http://www.helins.io"
+                    }
+                }
+            
+            
+                scm {
+                    connection          = "scm:git:git://github.com/helins/linux-gpio.java.git"
+                    developerConnection = "scm:git:ssh://github.com/helins/linux-gpio.java.git"
+                    url                 = globalUrl
+                }
+            }
+        }
+    }
+
+
+    repositories {
+        maven {
+            credentials( PasswordCredentials )
+            name = "sonatype"
+            url  = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        }
+    }
+}
+
+
+
+
+signing {
+    sign publishing.publications.LibMaven
 }

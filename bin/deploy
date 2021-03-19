@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+./gradlew publish -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.keyId="$1" -Psigning.password="$2" -PsonatypeUsername="$3" -PsonatypePassword="$4"

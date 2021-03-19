@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+./gradlew sign -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.keyId="$1" -Psigning.password="$2"

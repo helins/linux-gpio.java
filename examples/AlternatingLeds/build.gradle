@@ -13,4 +13,4 @@ dependencies {
 
 
 
-mainClassName = 'io.dvlopt.linux.gpio.examples.AlternatingLeds'
+mainClassName = 'io.helins.linux.gpio.examples.AlternatingLeds'
