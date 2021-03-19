@@ -1,12 +1,11 @@
-# linux-gpio
-
-[
-![Download](https://api.bintray.com/packages/dvlopt/maven/linux-gpio/images/download.svg)
-](https://bintray.com/dvlopt/maven/linux-gpio/_latestVersion)
+# Linux-GPIO
 
 [![Maven
-Central](https://maven-badges.herokuapp.com/maven-central/io.dvlopt/linux-gpio/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.dvlopt/linux-gpio)
+Central](https://maven-badges.herokuapp.com/maven-central/io.helins/linux-gpio/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.helins/linux-gpio)
 
+[![Javadoc](https://javadoc.io/badge2/io.helins/linux-gpio/javadoc.svg)](https://javadoc.io/doc/io.helins/linux-gpio)
+
+![CircleCI](https://circleci.com/gh/helins/linux-gpio.java.svg?style=shield)
 
 Handle [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output) lines 
 on a Linux system in a portable and fast way from the JVM.
@@ -16,10 +15,11 @@ on a Linux system in a portable and fast way from the JVM.
 - Better support for interrupts than others usual methods
 - Standard
 
+
 ## Rationale
 
 Handling GPIO lines from user space on a Linux system is typically done by
-writing directly to /dev/mem or to the more permissive /dev/gpiomem. While being
+writing directly to '/dev/mem' or to the more permissive '/dev/gpiomem'. While being
 fast, this approach is very closely thight to the hardware which means the code
 is not portable.  Another way is to use the sysfs method where each pin is
 exported and represented in the file system. Users can read and write specific
@@ -33,21 +33,21 @@ Raspberry Pi already support this API. This Java library wraps the C API in
 order to provide a more idiomatic interface accessible from the JVM while trying
 not to be too opiniated.
 
+
 ## Usage
 
 Any accessed GPIO device need at least read permission (which is enough even
 for writing). Typically, only the root user has access, hence permissions need
-to be set. For instance, for device 0 on a Raspberry Pi (user pi) :
+to be set. For instance, for device 0 on a Raspberry Pi (user `pi`) :
 
 ```bash
 $ chown root:pi /dev/gpiochip0
 $ chmod g+r /dev/gpiochip0
 ```
 
-Here is the
-[javadoc](https://dvlopt.github.io/doc/java/io.dvlopt/linux-gpio/index.html).
+The [javadoc](https://javadoc.io/doc/io.helins/linux-gpio) provide all details.
 
-Have a look at the [examples](./examples).
+Have a look at the [examples](../tree/masterexamples).
 
 Run an example where `$EXAMPLE` is the name of an example such as
 `AlternatingLeds` :
@@ -65,6 +65,7 @@ Run tests on the Raspberry Pi 3 (or similar), will test some IO :
 $ ./gradlew test -DonRaspberry=true
 ```
 
+
 ## Resources
 
 - [Linux
@@ -81,9 +82,9 @@ built on top of it.
 talk presenting what happens on the Kernel side as well as the user side with
 the new API.
 
+
 ## License
 
-Licensed under the [Apache License, Version
-2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
 Copyright © 2018 Adam Helinski
+
+Licensed under the term of the Mozilla Public License 2.0, see LICENSE.
