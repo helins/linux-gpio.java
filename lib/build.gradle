@@ -112,6 +112,7 @@ publishing {
             pom {
 
 
+                artifactId  = globalName
                 name        = globalName
                 description = globalDesc
                 url         = globalUrl
